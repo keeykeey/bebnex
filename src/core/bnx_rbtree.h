@@ -73,7 +73,7 @@ bnx_rbtree_node_t *bnx_rbtree_next(bnx_rbtree_t *tree,
 #define bnx_rbtree_sentinel_init(node)  bnx_rbt_black(node)
 
 
-/*
+
 static bnx_inline bnx_rbtree_node_t *
 bnx_rbtree_min(bnx_rbtree_node_t *node, bnx_rbtree_node_t *sentinel){
     while (node->left != sentinel){
@@ -82,6 +82,6 @@ bnx_rbtree_min(bnx_rbtree_node_t *node, bnx_rbtree_node_t *sentinel){
 
     return node;
 }
-*/
+
 
 #endif /* _BNX_RBTREE_H_INCLUDED_ */
