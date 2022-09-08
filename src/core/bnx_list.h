@@ -17,7 +17,7 @@ typedef struct bnx_list_part_s bnx_list_part_t;
 
 struct bnx_list_part_s {
     void                *elts;
-    bnx_unit_t           nelts;
+    bnx_uint_t           nelts;
     bnx_list_part_t     *next;
 };
 
