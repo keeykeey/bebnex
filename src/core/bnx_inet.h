@@ -82,7 +82,7 @@ typedef struct {
     bnx_str_t                 url;
     bnx_str_t                 host;
     bnx_str_t                 port_text;
-    bnx_str_t                 url;
+    bnx_str_t                 uri;
 
     in_port_t                 port;
     in_port_t                 default_port;
