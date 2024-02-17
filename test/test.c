@@ -36,5 +36,5 @@ int main(void)
     count++;
 
     printf("###################### TEST RESULT ####################\n");
-    printf("TOTAL: %d\nOK: %d\nNG: %d", count, count-ng, ng);
+    printf("TOTAL: %d\nOK: %d\nNG: %d\n", count, count-ng, ng);
 }
