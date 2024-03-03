@@ -19,10 +19,10 @@ bnx_socket_t bnx_create_socket(int domain, int type, int protocol)
     return sock;
 }
 
-struct sockaddr_in bnx_create_sockaddr_in(int fd, in_addr_t addr, int port )
+struct sockaddr_in bnx_create_sockaddr_in(int family, in_addr_t addr, int port )
 {
     sockaddr_in_t sin;
-    sin.sin_family = fd;
+    sin.sin_family = family;
     sin.sin_addr.s_addr = addr;
     sin.sin_port = htons(port);
 
@@ -38,7 +38,7 @@ int bnx_bind_socket(int fd, sockaddr_in_t sin)
         exit(1);
     };
 
-    return bnx_ok;
+    return BNX_OK;
 }
 
 int bnx_listen_socket(int fd, int max_con)
@@ -50,7 +50,7 @@ int bnx_listen_socket(int fd, int max_con)
         exit(1);
     }
 
-    return bnx_ok;
+    return BNX_OK;
 };
 
 int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin)
