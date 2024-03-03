@@ -26,7 +26,7 @@ int test_bnx_create_string()
     } else if (strcmp(s.pos, c) != 0) {
         return BNX_TEST_NG;
     } else {
-        return BNX_OK;
+        return BNX_TEST_OK;
     }
 }
 

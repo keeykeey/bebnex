@@ -9,6 +9,7 @@ int main(void)
 
     ng += test_bnx_socket(&count);
     ng += test_bnx_string(&count);
+    ng += test_bnx_conf_file(&count);
 
     printf("###################### TEST RESULT ####################\n");
     printf("TOTAL: %d\nOK: %d\nNG: %d\n", count, count-ng, ng);
