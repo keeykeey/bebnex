@@ -12,6 +12,8 @@ SRCS_EVENT=$(wildcard src/event/*.c)
 TEST_PROGRAM=test_bebnex
 TEST_OBJS=$(wildcard *.o)
 TEST_SRCS=$(wildcard test/*.c)
+TEST_CORE=$(wildcard test/core/test_bnx_*.c)
+TEST_EVENT=$(wildcard test/event/test_bnx_*.c)
 TEST_SRCS_CORE=$(wildcard src/core/bnx_*.c)
 TEST_SRCS_EVENT=$(wildcard src/event/bnx_*.c)
 
@@ -32,7 +34,7 @@ clean:
 $(TEST_PROGRAM): $(TEST_OBJS)
 	$(CC) -o $(TEST_PROGRAM) $(TEST_OBJS)
 
-testObjs: $(TEST_SRCS) $(TEST_SRCS_CORE) $(TEST_SRCS_EVENT)
-	$(CC) -c $(TEST_SRCS) $(TEST_SRCS_CORE) $(TEST_SRCS_EVENT)
+testObjs: $(TEST_SRCS) $(TEST_CORE) $(TEST_SRCS_CORE) $(TEST_SRCS_EVENT)
+	$(CC) -c $(TEST_SRCS) $(TEST_CORE) $(TEST_EVENT) $(TEST_SRCS_CORE) $(TEST_SRCS_EVENT)
 
 .PHONY: clean install test

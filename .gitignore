@@ -1,6 +1,7 @@
 .vscode
 bin/
+root_dev/
 
-.o
+*.o
 bebnex
 test_bebnex
