@@ -30,6 +30,25 @@ int test_bnx_create_string()
     }
 }
 
+int test_bnx_atoui()
+{
+    bnx_string_t s = bnx_create_string("321");
+    bnx_uint_t n = bnx_atoui(s);
+    if (n == 321) {
+        return BNX_TEST_OK;
+    } else {
+        return BNX_TEST_NG;
+    }
+
+    bnx_string_t s2 = bnx_create_string("8080");
+    bnx_uint_t n2 = bnx_atoui(s);
+    if (n2 == 8080) {
+        return BNX_TEST_OK;
+    } else {
+        return BNX_TEST_NG;
+    }
+}
+
 int test_bnx_string(int *count)
 {
     int ng = 0;
@@ -38,5 +57,10 @@ int test_bnx_string(int *count)
 
     ng += test_bnx_create_string();
     (*count)++;
+
+    ng += test_bnx_atoui();
+    (*count)++;
+
     return ng;
+
 }
