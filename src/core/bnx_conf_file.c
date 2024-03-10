@@ -10,48 +10,22 @@ bnx_conf_t bnx_read_conf(bnx_string_t path)
     if ((fp = fopen(path.data, "r")) == NULL) {
         fprintf(stderr, BNX_ERROR_MESSAGE);
     } else {
-        // TODO: it's just a mock and has to be rewrited
-        char key[256];
-        int kpos = 0;
-        char value[256];
-        int vpos = 0;
-        int readk = 1;
-        int readv = 0;
+        bnx_conf_parse_state_t ps = create_init_bnx_conf_parse_state();
+
         while ( (ch = fgetc(fp)) != EOF) {
             if ( ch == '=') {
-                key[kpos] = '\0';
-                readk = 0;
-                readv = 1;
-                kpos = 0;
-                vpos = 0;
+                terminate_parse_bnx_conf_key(&ps);
                 continue;
             } else if (ch == '\n') {
-                value[vpos] = '\0';
-                readk = 1;
-                readv = 0;
-                kpos = 0;
-                vpos = 0;
-
-                if (strcmp(key, "PORT\0") == 0) {
-                    bnx_string_t s = bnx_create_string(value);
-                    bnx_uint_t u = bnx_atoui(s);
-
-                    conf.port = bnx_atoui(bnx_create_string(value));
-                } else if ( strcmp(key, "MAX_CON\0") == 0) {
-                    bnx_string_t s = bnx_create_string(value);
-                    bnx_uint_t u = bnx_atoui(s);
-
-                    conf.max_con = bnx_atoui(bnx_create_string(value));
-                } else if (strcmp(key, "PREFIX\0") == 0) {
-                    conf.prefix = bnx_create_string(value);
-                }
+                terminate_parse_bnx_conf_value(&ps);
+                set_bnx_conf(&conf, &ps);
                 continue;
             }
 
-            if (readk) {
-                key[kpos++] = (char) ch;
-            } else if (readv) {
-                value[vpos++] = (char) ch;
+            if (ps.readk) {
+                ps.key[ps.kpos++] = (char) ch;
+            } else if (ps.readv) {
+                ps.value[ps.vpos++] = (char) ch;
             }
         };
     }
@@ -61,19 +35,50 @@ bnx_conf_t bnx_read_conf(bnx_string_t path)
     return conf;
 }
 
-bnx_uint_t get_bnx_conf_port(FILE *fp)
+bnx_conf_parse_state_t create_init_bnx_conf_parse_state()
 {
-    return 8080;
+    bnx_conf_parse_state_t conf;
+    conf.key[0] = '\0';
+    conf.value[0] = '\0';
+    conf.kpos = 0;
+    conf.vpos = 0;
+    conf.readk = 1;
+    conf.readv = 0;
+
+    return conf;
 }
 
-bnx_uint_t get_bnx_conf_max_con(FILE *fp)
+void set_bnx_conf(bnx_conf_t *conf, bnx_conf_parse_state_t *ps)
 {
-    return 10;
+    if (strcmp(ps->key, "PORT\0") == 0) {
+        bnx_string_t s = bnx_create_string(ps->value);
+        bnx_uint_t u = bnx_atoui(s);
+
+        conf->port = bnx_atoui(bnx_create_string(ps->value));
+    } else if ( strcmp(ps->key, "MAX_CON\0") == 0) {
+        bnx_string_t s = bnx_create_string(ps->value);
+        bnx_uint_t u = bnx_atoui(s);
+
+        conf->max_con = bnx_atoui(bnx_create_string(ps->value));
+    } else if (strcmp(ps->key, "PREFIX\0") == 0) {
+        conf->prefix = bnx_create_string(ps->value);
+    }
 }
 
-bnx_string_t get_bnx_conf_prefix(FILE *fp)
+void terminate_parse_bnx_conf_key(bnx_conf_parse_state_t *s)
 {
-    bnx_string_t s = bnx_create_string("/root_dev/var/www/index.html\0");
+    s->key[s->kpos] = '\0';
+    s->readk = 0;
+    s->readv = 1;
+    s->kpos = 0;
+    s->vpos = 0;
+}
 
-    return s;
+void terminate_parse_bnx_conf_value(bnx_conf_parse_state_t *s)
+{
+    s->value[s->vpos] = '\0';
+    s->readk = 1;
+    s->readv = 0;
+    s->kpos = 0;
+    s->vpos = 0;
 }
