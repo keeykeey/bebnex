@@ -16,6 +16,6 @@ bnx_socket_t bnx_create_socket(int domain, int type, int protocol);
 sockaddr_in_t bnx_create_sockaddr_in(int fd, in_addr_t addr, int port);
 int bnx_bind_socket(int fc, sockaddr_in_t sin);
 int bnx_listen_socket(int fd, int max_con);
-int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin);
+int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin, bnx_conf_t conf);
 
 #endif /** BNX_SOCKET_H */

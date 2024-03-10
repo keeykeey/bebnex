@@ -53,7 +53,7 @@ int bnx_listen_socket(int fd, int max_con)
     return BNX_OK;
 };
 
-int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin)
+int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin, bnx_conf_t conf)
 {
     char buffer[BUF_LEN];
     while(1)
@@ -70,9 +70,20 @@ int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin)
         read(new_socket, buffer, BUF_LEN);
         fflush(stdout);
 
-        char *hello ="hello bebnex";
+        // TODO: refactor
+        FILE *fp;
+        char response[BUF_LEN];
+        char ch;
+        if ((fp = fopen(conf.prefix.data, "r")) == NULL) {
+            fprintf(stderr, BNX_ERROR_MESSAGE);
+        } else {
+            int i = 0;
+            while ((ch = fgetc(fp)) != EOF) {
+                response[i++] = ch;
+            }
+        }
 
-        write(new_socket, hello, strlen(hello));
+        write(new_socket, response, strlen(response));
         close(new_socket);
     };
 };
