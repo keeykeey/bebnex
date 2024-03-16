@@ -1,6 +1,17 @@
 #include "config.h"
 #include "core.h"
 
+char *bnx_copy_string(char *dst, char *src)
+{
+    char *ch = dst;
+    while (*dst++ = *src++) {
+        ;
+    }
+    *dst = '\0';
+
+    return ch;
+}
+
 bnx_uint_t bnx_str_len(char *ch)
 {
     bnx_int_t l = 0;
@@ -14,8 +25,9 @@ bnx_uint_t bnx_str_len(char *ch)
 bnx_string_t bnx_create_string(char *ch)
 {
     bnx_string_t s;
-    s.data = ch;
-    s.pos = ch;
+    int str_len = bnx_str_len(ch) + 1;
+    char *tmp = calloc(str_len, sizeof(char));
+    s.data = bnx_copy_string(tmp, ch);
     s.length = bnx_str_len(s.data);
 
     return s;

@@ -72,7 +72,7 @@ int bnx_launch(bnx_socket_t sock, sockaddr_in_t sin, bnx_conf_t conf)
 
         // TODO: refactor
         FILE *fp;
-        char response[BUF_LEN];
+        char response[BUF_LEN] = {};
         char ch;
         if ((fp = fopen(conf.prefix.data, "r")) == NULL) {
             fprintf(stderr, BNX_ERROR_MESSAGE);

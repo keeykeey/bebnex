@@ -2,6 +2,20 @@
 #include "../../src/core/config.h"
 #include "../test.h"
 
+int test_bnx_copy_string()
+{
+    char *src = "hello bebnex";
+    char dst[13] = {};
+    char *new = bnx_copy_string(dst, src);
+
+    int i;
+    if (strcmp(new, src) == 0) {
+        return BNX_TEST_OK;
+    } else {
+        return BNX_TEST_NG;
+    }
+}
+
 int test_bnx_str_len()
 {
     char *c = "hello bebnex";
@@ -22,8 +36,6 @@ int test_bnx_create_string()
     if (s.length != 12) {
         return BNX_TEST_NG;
     } else if (strcmp(s.data, c) != 0) {
-        return BNX_TEST_NG;
-    } else if (strcmp(s.pos, c) != 0) {
         return BNX_TEST_NG;
     } else {
         return BNX_TEST_OK;
@@ -52,6 +64,9 @@ int test_bnx_atoui()
 int test_bnx_string(int *count)
 {
     int ng = 0;
+    ng += test_bnx_copy_string();
+    (*count)++;
+
     ng += test_bnx_str_len();
     (*count)++;
 

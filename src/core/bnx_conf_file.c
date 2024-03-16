@@ -23,9 +23,9 @@ bnx_conf_t bnx_read_conf(bnx_string_t path)
             }
 
             if (ps.readk) {
-                ps.key[ps.kpos++] = (char) ch;
+                ps.key[(ps.kpos)++] = (char) ch;
             } else if (ps.readv) {
-                ps.value[ps.vpos++] = (char) ch;
+                ps.value[(ps.vpos)++] = (char) ch;
             }
         };
     }
@@ -37,15 +37,15 @@ bnx_conf_t bnx_read_conf(bnx_string_t path)
 
 bnx_conf_parse_state_t create_init_bnx_conf_parse_state()
 {
-    bnx_conf_parse_state_t conf;
-    conf.key[0] = '\0';
-    conf.value[0] = '\0';
-    conf.kpos = 0;
-    conf.vpos = 0;
-    conf.readk = 1;
-    conf.readv = 0;
+    bnx_conf_parse_state_t ps;
+    ps.key[0] = '\0';
+    ps.value[0] = '\0';
+    ps.kpos = 0;
+    ps.vpos = 0;
+    ps.readk = 1;
+    ps.readv = 0;
 
-    return conf;
+    return ps;
 }
 
 void set_bnx_conf(bnx_conf_t *conf, bnx_conf_parse_state_t *ps)
