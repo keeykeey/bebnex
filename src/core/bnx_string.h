@@ -5,11 +5,12 @@
 
 typedef struct bnx_string_s {
     char             *data;
-    char             *pos;
     bnx_uint_t        length;
 } bnx_string_t;
 
-bnx_string_t bnx_create_string(char *ch);
+char *bnx_copy_string(char *dst, char *src);
 bnx_uint_t bnx_str_len(char* ch);
+bnx_string_t bnx_create_string(char *ch);
+bnx_uint_t bnx_atoui(bnx_string_t s);
 
 #endif /** BNX_STRING_H */

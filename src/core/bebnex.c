@@ -11,6 +11,6 @@ int main(void)
     sockaddr_in_t sin = bnx_create_sockaddr_in(AF_INET, INADDR_ANY, conf.port);
     bnx_bind_socket(sock.fd, sin);
     bnx_listen_socket(sock.fd, conf.max_con);
-    bnx_launch(sock, sin);
+    bnx_launch(sock, sin, conf);
     close(sock.fd);
 }

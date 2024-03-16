@@ -7,6 +7,7 @@
 
 int test_bnx_str_len();
 int test_bnx_create_string();
+int test_bnx_atoui();
 int test_bnx_string(int *count);
 
 #endif /** TEST_BNX_STRING_H */
