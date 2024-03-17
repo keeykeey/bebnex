@@ -4,7 +4,7 @@
 int main(void)
 {
     printf("bebnex is running...\n");
-    bnx_string_t path = bnx_create_string("./root_dev/etc/bebnex/bebnex.conf\0");
+    bnx_string_t path = bnx_create_string(BNX_CONF_FILE_PATH);
     bnx_conf_t conf = bnx_read_conf(path);
     
     bnx_socket_t sock = bnx_create_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);

@@ -1,8 +1,15 @@
-#ifndef BNX_CONF_FILE
-#define BNX_CONF_FILE
+#ifndef BNX_CONF_FILE_H
+#define BNX_CONF_FILE_H
 
-#define BNX_CONF_FILE_PATH "root_dev/etc/bebnex/"
-#define BNX_CONF_FILE_NAME "bebnex.conf"
+#include "./config.h"
+#include "./core.h"
+#include "./bnx_custom_conf_file.h"
+
+#ifdef BNX_CUSTOM_CONF_FILE_PATH
+#define BNX_CONF_FILE_PATH BNX_CUSTOM_CONF_FILE_PATH
+#else 
+#define BNX_CONF_FILE_PATH "/etc/bebnex/bebnex.conf"
+#endif /** BNX_CUSTOM_CONF_FILE_PATH */
 
 #define CONF_KEY_LEN 256
 #define CONF_VALUE_LEN  256
@@ -28,4 +35,4 @@ void set_bnx_conf(bnx_conf_t *conf, bnx_conf_parse_state_t *state);
 void terminate_parse_bnx_conf_key(bnx_conf_parse_state_t *state);
 void terminate_parse_bnx_conf_value(bnx_conf_parse_state_t *state);
 
-#endif /** BNX_CONF_FILE */
+#endif /** BNX_CONF_FILE_H */
