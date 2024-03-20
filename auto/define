@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat << END >> ./src/core/bnx_custom_conf_file.h
+cat << END >> $BNX_CONF_SETTING_H
 
 #ifndef $have
 #define $have $value

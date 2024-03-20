@@ -1,5 +1,7 @@
 #!/bin/sh
 
+BNX_CONF_SETTING_H=./src/core/bnx_conf_setting.h
+
 if [ $# -eq 0 ]; then
   echo "custom setting not found"
   exit 0
@@ -17,14 +19,14 @@ if [ -e ./src/core/bnx_custom_conf_file.h ]; then
 fi
 
 
-cat << END >> ./src/core/bnx_custom_conf_file.h
+cat << END >> $BNX_CONF_SETTING_H
 #ifndef BNX_CUSTOM_CONF_FILE_H
 #define BNX_CUSTOM_CONF_FILE_H
 END
 
 . ./auto/options
-have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CUSTOM_CONF_FILE_PATH\""   .  ./auto/define
+have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CONF_FILE\""   .  ./auto/define
 
-cat << END >> ./src/core/bnx_custom_conf_file.h
+cat << END >> $BNX_CONF_SETTING_H
 #endif /** BNX_CUSTOM_CONF_FILE_H */
 END
