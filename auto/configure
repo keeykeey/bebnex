@@ -16,10 +16,15 @@ if [ -e ./src/core/bnx_custom_conf_file.h ]; then
   rm   ./src/core/bnx_custom_conf_file.h
 fi
 
-echo "
+
+cat << END >> ./src/core/bnx_custom_conf_file.h
 #ifndef BNX_CUSTOM_CONF_FILE_H
 #define BNX_CUSTOM_CONF_FILE_H
+END
 
-#define BNX_CUSTOM_CONF_FILE_PATH \"$1\"
+. ./auto/options
+have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CUSTOM_CONF_FILE_PATH\""   .  ./auto/define
 
-#endif /** BNX_CUSTOM_CONF_FILE_H */" >> ./src/core/bnx_custom_conf_file.h
+cat << END >> ./src/core/bnx_custom_conf_file.h
+#endif /** BNX_CUSTOM_CONF_FILE_H */
+END
