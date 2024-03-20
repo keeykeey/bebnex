@@ -6,4 +6,4 @@ root_dev/
 bebnex
 test_bebnex
 
-src/core/bnx_custom_conf_file.h
+src/core/bnx_conf_setting.h

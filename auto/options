@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BNX_CUSTOM_CONF_FILE_PATH=
+BNX_CONF_FILE="/etc/bebnex/bebnex.conf"
 
 for options
 do
