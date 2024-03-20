@@ -5,3 +5,5 @@ root_dev/
 *.o
 bebnex
 test_bebnex
+
+src/core/bnx_custom_conf_file.h

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]; then
+  echo "custom setting not found"
+  exit 0
+fi
+
+if [ ! -d ./src/core ]; then
+  echo "src/core directory doesn't exists"
+  echo "stopping script"
+  exit 0
+fi
+
+if [ -e ./src/core/bnx_custom_conf_file.h ]; then
+  echo "removing ./src/core/bnx_custom_conf_file.h"
+  rm   ./src/core/bnx_custom_conf_file.h
+fi
+
+
+cat << END >> ./src/core/bnx_custom_conf_file.h
+#ifndef BNX_CUSTOM_CONF_FILE_H
+#define BNX_CUSTOM_CONF_FILE_H
+END
+
+. ./auto/options
+have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CUSTOM_CONF_FILE_PATH\""   .  ./auto/define
+
+cat << END >> ./src/core/bnx_custom_conf_file.h
+#endif /** BNX_CUSTOM_CONF_FILE_H */
+END

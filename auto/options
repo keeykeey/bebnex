@@ -1,0 +1,15 @@
+#!/bin/sh
+
+BNX_CUSTOM_CONF_FILE_PATH=
+
+for options
+do
+  case $options in
+    -*=*)  value=`echo $options | sed -e "s/[-_a-zA-Z0-9]*=//"`  ;;
+       *)  value=""  ;;
+  esac
+
+  case $options in
+    --conf-path=*)  BNX_CUSTOM_CONF_FILE_PATH=$value ;;
+  esac
+done

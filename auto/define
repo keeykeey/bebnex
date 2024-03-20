@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cat << END >> ./src/core/bnx_custom_conf_file.h
+
+#ifndef $have
+#define $have $value
+#endif
+
+END
