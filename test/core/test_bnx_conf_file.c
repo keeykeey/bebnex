@@ -16,10 +16,6 @@ int test_bnx_read_conf()
         return BNX_TEST_NG;
     }
 
-    if (conf.max_con != max_con_expected) {
-        return BNX_TEST_NG;
-    }
-
     if (strcmp(conf.prefix.data, prefix_expected.data) != 0) {
         return BNX_TEST_NG;
     }

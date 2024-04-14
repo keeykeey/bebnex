@@ -7,7 +7,7 @@ int main(void)
     int ng = 0;
     int count = 0;
 
-    ng += test_bnx_socket(&count);
+    ng += test_bnx_connection(&count);
     ng += test_bnx_string(&count);
     ng += test_bnx_conf_file(&count);
 

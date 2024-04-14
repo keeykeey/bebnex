@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cat << END >> $BNX_CONF_SETTING_H
+
+#ifndef $have
+#define $have $value
+#endif
+
+END

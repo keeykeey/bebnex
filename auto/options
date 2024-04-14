@@ -1,0 +1,15 @@
+#!/bin/sh
+
+BNX_CONF_FILE="/etc/bebnex/bebnex.conf"
+
+for options
+do
+  case $options in
+    -*=*)  value=`echo $options | sed -e "s/[-_a-zA-Z0-9]*=//"`  ;;
+       *)  value=""  ;;
+  esac
+
+  case $options in
+    --conf-path=*)  BNX_CONF_FILE=$value ;;
+  esac
+done
