@@ -55,11 +55,6 @@ void set_bnx_conf(bnx_conf_t *conf, bnx_conf_parse_state_t *ps)
         bnx_uint_t u = bnx_atoui(s);
 
         conf->port = bnx_atoui(bnx_create_string(ps->value));
-    } else if ( strcmp(ps->key, "MAX_CON\0") == 0) {
-        bnx_string_t s = bnx_create_string(ps->value);
-        bnx_uint_t u = bnx_atoui(s);
-
-        conf->max_con = bnx_atoui(bnx_create_string(ps->value));
     } else if (strcmp(ps->key, "PREFIX\0") == 0) {
         conf->prefix = bnx_create_string(ps->value);
     }

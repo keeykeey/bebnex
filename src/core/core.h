@@ -6,7 +6,7 @@
 
 typedef int bnx_int_t;
 typedef unsigned int bnx_uint_t;
-typedef struct sockaddr_in sockaddr_in_t;
+typedef unsigned char u_char;
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -15,9 +15,14 @@ typedef struct sockaddr_in sockaddr_in_t;
 #include <stdlib.h>
 #include <string.h>
 
+#include "../os/unix/bnx_socket.h"
+#include "../os/unix/bnx_linux_config.h"
+
 #include "./bnx_string.h"
 #include "./bnx_log.h"
 #include "./bnx_conf_file.h"
-#include "../event/bnx_socket.h"
+#include "./bnx_connection.h"
+#include "./bnx_inet.h"
+
 
 #endif /*CORE_H*/
