@@ -14,7 +14,6 @@
 
 typedef struct bnx_conf_s {
     bnx_uint_t port;
-    bnx_uint_t max_con;
     bnx_string_t prefix; 
 } bnx_conf_t;
 

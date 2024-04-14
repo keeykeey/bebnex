@@ -4,6 +4,6 @@ root_dev/
 
 *.o
 bebnex
-test_bebnex
+tebnex
 
 src/core/bnx_conf_setting.h
