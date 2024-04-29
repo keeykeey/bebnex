@@ -1,0 +1,60 @@
+#!/bin/bash
+
+MAKEFILE=Makefile
+DEST=/usr/local/bin
+
+BUILDFILE=bebnex
+MODULE=module
+
+TESTFILE=tebnex
+TESTMODULE=testmodule
+
+cat << END > $MAKEFILE
+build: $MODULE
+$MODULE:
+END
+
+. ./auto/source
+# build bebnex
+for s in $CORE_SRCS
+do
+	src=$s
+
+	cat << END >> $MAKEFILE
+	gcc -c $src
+END
+done
+
+cat << END >> $MAKEFILE
+	gcc -o $BUILDFILE [a-zA-Z\_]*\.o
+END
+
+# install, clean
+cat << END >> $MAKEFILE
+install: $BUILDFILE
+	install -s $BUILDFILE $DEST
+clean:
+	rm -f *\.o $BUILDFILE
+END
+
+cat << END >> $MAKEFILE
+$TESTFILE: $TESTMODULE
+$TESTMODULE:
+END
+
+# build tebnex
+for s in $TEST_CORE_SRCS
+do
+	src=$s
+	cat << END >> $MAKEFILE
+	gcc -c $src
+END
+done
+
+cat << END >> $MAKEFILE
+	gcc -o $TESTFILE [a-zA-Z\_]*\.o
+END
+
+cat << END >> $MAKEFILE
+.PHONY: clean install test
+END
