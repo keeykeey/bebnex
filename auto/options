@@ -11,5 +11,6 @@ do
 
   case $options in
     --conf-path=*)  BNX_CONF_FILE=$value ;;
+    --build-path=*) BNX_BUILD_PATH=$value ;;
   esac
 done
