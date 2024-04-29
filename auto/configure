@@ -30,3 +30,5 @@ have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CONF_FILE\""   .  ./auto/define
 cat << END >> $BNX_CONF_SETTING_H
 #endif /** BNX_CONF_SETTING_H */
 END
+
+. ./auto/make

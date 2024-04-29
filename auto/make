@@ -3,6 +3,8 @@
 MAKEFILE=Makefile
 DEST=/usr/local/bin
 
+[ $BNX_BUILD_PATH ] && DEST=$BNX_BUILD_PATH
+
 BUILDFILE=bebnex
 MODULE=module
 
