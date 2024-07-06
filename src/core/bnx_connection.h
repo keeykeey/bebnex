@@ -8,7 +8,7 @@
 
 typedef struct bnx_listening_s bnx_listening_t;
 struct bnx_listening_s {
-    int fd;
+    bnx_socket_t fd;
     struct sockaddr *sockaddr;
     socklen_t socklen; // sizeof sockaddr
     size_t add_text_max_len;

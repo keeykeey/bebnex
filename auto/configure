@@ -3,8 +3,7 @@
 BNX_CONF_SETTING_H=./src/core/bnx_conf_setting.h
 
 if [ $# -eq 0 ]; then
-  echo "custom setting not found"
-  exit 0
+  echo "custom setting not found. bebnex is setting default setting."
 fi
 
 if [ ! -d ./src/core ]; then
@@ -14,7 +13,7 @@ if [ ! -d ./src/core ]; then
 fi
 
 if [ -e $BNX_CONF_SETTING_H ]; then
-  echo "removing ./src/core/bnx_custom_conf_file.h"
+  echo "removing $BNX_CONF_SETTING_H"
   rm   $BNX_CONF_SETTING_H
 fi
 
@@ -26,6 +25,7 @@ END
 
 . ./auto/options
 have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CONF_FILE\""   .  ./auto/define
+have=BNX_ACCESS_LOG_FILE value="\"$BNX_ACCESS_LOG_FILE\""   .  ./auto/define
 
 cat << END >> $BNX_CONF_SETTING_H
 #endif /** BNX_CONF_SETTING_H */

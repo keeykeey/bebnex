@@ -11,5 +11,6 @@ TEST_CORE_SRCS="src/core/bnx_conf_file.c \
                 test/test.c \
                 test/core/test_bnx_conf_file.c \
                 test/core/test_bnx_connection.c \
+                test/core/test_bnx_log.c \
                 test/core/test_bnx_string.c"
                 
