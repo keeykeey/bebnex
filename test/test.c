@@ -1,5 +1,3 @@
-#include "../src/core/core.h"
-#include "../src/core/config.h"
 #include "./test.h"
 
 int main(void)
@@ -10,6 +8,7 @@ int main(void)
     ng += test_bnx_connection(&count);
     ng += test_bnx_string(&count);
     ng += test_bnx_conf_file(&count);
+    ng += test_bnx_log(&count);
 
     printf("###################### TEST RESULT ####################\n");
     printf("TOTAL: %d\nOK: %d\nNG: %d\n", count, count-ng, ng);
