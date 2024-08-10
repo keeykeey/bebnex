@@ -6,21 +6,22 @@ void init_test_log_file()
 {
     FILE *fp;
     // clear log file
-    fp = fopen("./test/testfiles/test.log", "w");
+    fp = fopen(TEBNEX_TEST_LOG_FILE, "w");
     fclose(fp);
 }
 
 int test_create_bnx_log()
 {
+    bnx_logger_t *logger = bnx_init_log(bnx_write_log, TEBNEX_TEST_LOG_FILE);
     bnx_string_t log = bnx_create_string("testing create_bnx_log function...\n");
 
-    if (bnx_write_log("./test/testfiles/test.log", log) == BNX_TEST_NG) {
+    if (bnx_write_log(log, logger) == BNX_TEST_NG) {
         return BNX_TEST_NG;
     }
 
     FILE *fp;
-    if ((fp = fopen("./test/testfiles/test.log", "r")) == NULL) {
-        fprintf(stderr, "couldn't open ./testfiles/log\n");
+    if ((fp = fopen(TEBNEX_TEST_LOG_FILE, "r")) == NULL) {
+        fprintf(stderr, "couldn't open %s\n", TEBNEX_TEST_LOG_FILE);
         fclose(fp);
         return BNX_TEST_NG;
     } else {

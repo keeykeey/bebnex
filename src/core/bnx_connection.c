@@ -64,7 +64,7 @@ int bnx_listen_socket(bnx_listening_t *ls)
     return BNX_OK;
 };
 
-int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf)
+int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
 {
     char buffer[BUF_LEN];
     while(1)
@@ -82,7 +82,7 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf)
         fflush(stdout);
 
         // write access log
-        bnx_write_log(BNX_ACCESS_LOG_FILE, bnx_create_access_log_message());
+        logger->fwriter(bnx_create_access_log_message(), logger);
 
         // TODO: refactor
         FILE *fp;

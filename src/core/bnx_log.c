@@ -1,10 +1,19 @@
 #include "./core.h"
 
-int bnx_write_log(char *log_file_path, bnx_string_t log)
+bnx_logger_t *bnx_init_log(
+  bnx_int_t (*fwriter)(bnx_string_t log, bnx_logger_t *logger),
+  char *fpath
+) {
+  bnx_logger_t *l = (bnx_logger_t *)calloc(1, sizeof(bnx_logger_t));
+  l->fwriter = bnx_write_log;
+  l->fpath = fpath;
+  return l;
+}
+
+bnx_int_t bnx_write_log(bnx_string_t log, bnx_logger_t *logger)
 {
     FILE *fp;
-    if ((fp = fopen(log_file_path, "a")) == NULL) {
-      fprintf(stdout, "couldn't open %s", BNX_ACCESS_LOG_FILE);
+    if ((fp = fopen(logger->fpath, "a")) == NULL) {
       fclose(fp);
       return BNX_NG;
     } else {
