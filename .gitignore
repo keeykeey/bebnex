@@ -8,3 +8,5 @@ bebnex
 tebnex
 
 src/core/bnx_conf_setting.h
+
+test/testfiles/test.log

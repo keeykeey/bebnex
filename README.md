@@ -4,11 +4,12 @@
 #### config-file would be like below
     PREFIX=/var/www/index.html
     PORT=8080`
-### 2 ./auto/configure --conf-path="your config-file-path" ...
+### 2 ./auto/configure --conf-file="your config-file-path" ...
 #### options would be like below
-    --conf-path=/etc/bebnex/bebnex.conf
+    --conf-file=/etc/bebnex/bebnex.conf
     --build-path=/usr/local/bin/
-### 3 ./make
+    --access-log-file=/var/log/bebnex/bebnex.access.log
+### 3 ./auto/make
 ####
 
 ### 4 make install
