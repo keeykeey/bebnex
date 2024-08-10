@@ -2,7 +2,8 @@ CORE_SRCS="src/core/bebnex.c \
            src/core/bnx_conf_file.c \
            src/core/bnx_connection.c \
            src/core/bnx_log.c \
-           src/core/bnx_string.c"
+           src/core/bnx_string.c \
+           src/os/bnx_socket.c"
 
 TEST_CORE_SRCS="src/core/bnx_conf_file.c \
                 src/core/bnx_connection.c \

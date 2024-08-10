@@ -10,7 +10,8 @@ int main(void)
     bnx_string_t path = bnx_create_string(BNX_CONF_FILE_PATH);
     bnx_conf_t conf = bnx_read_conf(path);
 
-    bnx_socket_t fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    bnx_socket_t fd = bnx_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP, logger);
+
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
     sin.sin_port = htons(conf.port);
@@ -20,5 +21,5 @@ int main(void)
     bnx_bind_socket(fd, ls);
     bnx_listen_socket(ls);
     bnx_launch(ls, conf, logger);
-    close(ls->fd);
+    bnx_close_socket(ls->fd);
 }

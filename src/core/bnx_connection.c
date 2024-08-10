@@ -72,11 +72,7 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
         fprintf(stdout, "waiting for connection...\n");
         fflush(stdout);
         int address_length = ls->add_text_max_len;
-        bnx_socket_t new_socket = accept(
-            ls->fd, 
-            ls->sockaddr,
-            &ls->socklen
-        );
+        bnx_socket_t new_socket = bnx_accept(ls, logger);
 
         read(new_socket, buffer, BUF_LEN);
         fflush(stdout);
