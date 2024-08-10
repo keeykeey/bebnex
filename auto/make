@@ -1,9 +1,6 @@
 #!/bin/bash
 
 MAKEFILE=Makefile
-DEST=/usr/local/bin/
-
-[ $BNX_BUILD_PATH ] && DEST=$BNX_BUILD_PATH
 
 BUILDFILE=bebnex
 MODULE=module
@@ -34,9 +31,9 @@ END
 # install, clean
 cat << END >> $MAKEFILE
 install: $BUILDFILE
-	install -s $BUILDFILE $DEST
+	install -s $BUILDFILE $BNX_BUILD_PATH
 clean:
-	rm -f *\.o $BUILDFILE
+	rm -f *\.o $BUILDFILE $TESTFILE
 END
 
 cat << END >> $MAKEFILE

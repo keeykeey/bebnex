@@ -14,6 +14,8 @@ typedef unsigned char u_char;
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <time.h>
 
 #include "../os/unix/bnx_socket.h"
 #include "../os/unix/bnx_linux_config.h"

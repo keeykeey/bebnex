@@ -4,7 +4,10 @@
 #include "../../core/config.h"
 #include "../../core/core.h"
 
+#ifndef BNX_WIN32
+
 typedef int bnx_socket_t;
-//typedef int socklen_t;
+
+#endif /** BNX_WIN32 */
 
 #endif /** BNX_SOCKET_H */

@@ -3,6 +3,9 @@
 
 int main(void)
 {
+    bnx_logger_t *logger;
+    logger = bnx_init_log(bnx_write_log, BNX_ACCESS_LOG_FILE);
+
     printf("bebnex is running...\n");
     bnx_string_t path = bnx_create_string(BNX_CONF_FILE_PATH);
     bnx_conf_t conf = bnx_read_conf(path);
@@ -16,6 +19,6 @@ int main(void)
     bnx_listening_t *ls = bnx_create_listening((struct sockaddr *)&sin, sizeof(sin));
     bnx_bind_socket(fd, ls);
     bnx_listen_socket(ls);
-    bnx_launch(ls, conf);
+    bnx_launch(ls, conf, logger);
     close(ls->fd);
 }

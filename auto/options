@@ -1,6 +1,8 @@
 #!/bin/sh
 
 BNX_CONF_FILE="/etc/bebnex/bebnex.conf"
+BNX_BUILD_PATH="/usr/local/bin/"
+BNX_ACCESS_LOG_FILE="/var/log/bebnex/bebnex.access.log"
 
 for options
 do
@@ -10,7 +12,8 @@ do
   esac
 
   case $options in
-    --conf-path=*)  BNX_CONF_FILE=$value ;;
+    --conf-file=*)  BNX_CONF_FILE=$value  ;;
     --build-path=*) BNX_BUILD_PATH=$value ;;
+    --access-log-file=*)   BNX_ACCESS_LOG_FILE=$value   ;;
   esac
 done

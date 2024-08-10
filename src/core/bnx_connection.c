@@ -64,15 +64,15 @@ int bnx_listen_socket(bnx_listening_t *ls)
     return BNX_OK;
 };
 
-int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf)
+int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
 {
     char buffer[BUF_LEN];
     while(1)
     {
-        printf("waiting for connection...\n");
+        fprintf(stdout, "waiting for connection...\n");
         fflush(stdout);
         int address_length = ls->add_text_max_len;
-        int new_socket = accept(
+        bnx_socket_t new_socket = accept(
             ls->fd, 
             ls->sockaddr,
             &ls->socklen
@@ -80,6 +80,9 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf)
 
         read(new_socket, buffer, BUF_LEN);
         fflush(stdout);
+
+        // write access log
+        logger->fwriter(bnx_create_access_log_message(), logger);
 
         // TODO: refactor
         FILE *fp;
