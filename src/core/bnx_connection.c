@@ -44,7 +44,7 @@ int bnx_bind_socket(bnx_socket_t fd, bnx_listening_t *ls)
     ls->fd = fd;
     if (bind(ls->fd, ls->sockaddr, ls->socklen) < 0)
     {
-        fprintf(stderr, BNX_ERROR_MESSAGE);
+        fprintf(stderr, "[error] bind() failed: (%d)\n", bnx_get_socket_errno());
         close(ls->fd);
         exit(1);
     };
@@ -56,7 +56,7 @@ int bnx_listen_socket(bnx_listening_t *ls)
 {
     if (listen(ls->fd, ls->backlog) < 0)
     {
-        fprintf(stderr, BNX_ERROR_MESSAGE);
+        fprintf(stderr, "[error] listen() failed: (%d)\n", bnx_get_socket_errno());
         close(ls->fd);
         exit(1);
     }

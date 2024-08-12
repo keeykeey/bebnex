@@ -7,6 +7,9 @@
 
 /* if os is windows or not */
 #ifdef _WIN32
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
 typedef SOCKET bnx_socket_t;
 #define bnx_isvalid_socket(s) ((s) != INVALID_SOCKET)
 #define bnx_close_socket(s) closesocket(s)

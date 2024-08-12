@@ -14,16 +14,17 @@ typedef struct bnx_logger_s bnx_logger_t;
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
-#include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#endif /** ifdef _WIN32 */
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
-#endif /** ifdef _WIN32 */
 
 #include "../os/bnx_socket.h"
 #include "../os/unix/bnx_linux_config.h"

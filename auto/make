@@ -15,6 +15,7 @@ END
 
 . ./auto/source
 # build bebnex
+# TODO: set '-lws2_32' after gcc - c hogehoge.c when built on windows
 for s in $CORE_SRCS
 do
 	src=$s
