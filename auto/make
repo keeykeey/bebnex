@@ -43,7 +43,7 @@ END
 done
 
 cat << END >> $MAKEFILE
-	gcc -o $BUILDFILE [a-zA-Z\_]*\.o $GCC_WIN_OPTION $GDB_DEBUG_OPTION
+	gcc -o $BUILDFILE [a-zA-Z\_]*\.o $GCC_WIN_OPTION $GCC_DEBUG_OPTION
 END
 
 # install, clean
