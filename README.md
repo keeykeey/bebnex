@@ -9,6 +9,8 @@
     --conf-file=/etc/bebnex/bebnex.conf
     --build-path=/usr/local/bin/
     --access-log-file=/var/log/bebnex/bebnex.access.log
+#### if you want debug with gdb, run ./configure with --debug=gdb option.
+    --debug=gdb
 ### 3 ./auto/make
 ####
 

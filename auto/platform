@@ -1,0 +1,16 @@
+#!/bin/sh
+
+BNX_PLATFORM=
+BNX_SYSTEM=`uname -s 2>/dev/null`
+
+echo "got bebnex system: $BNX_SYSTEM"
+echo "bnx_conf_setting_h: $BNX_CONF_SETTING_H"
+
+case "$BNX_SYSTEM" in
+  MINGW32_* | MINGW64_* | MSYS_*)
+    BNX_PLATFORM=win32
+    have=BNX_WIN32 value="\"$BNX_PLATFORM\"" . ./auto/define
+    ;;
+esac
+
+echo "checking bebnex platform: $BNX_PLATFORM"
