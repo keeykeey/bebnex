@@ -14,6 +14,7 @@ typedef struct bnx_logger_s bnx_logger_t;
 #ifdef BNX_WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#pragma comment(lib, "Ws2_32.lib")
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>

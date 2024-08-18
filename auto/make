@@ -10,7 +10,7 @@ TESTMODULE=testmodule
 
 # is build on win32 platform
 GCC_WIN_OPTION=
-case BNX_PLATFORM in 
+case $BNX_PLATFORM in 
   "win32") 
     GCC_WIN_OPTION=-lws2_32
 esac

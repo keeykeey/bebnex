@@ -10,6 +10,14 @@ int main(void)
     bnx_string_t path = bnx_create_string(BNX_CONF_FILE_PATH);
     bnx_conf_t conf = bnx_read_conf(path);
 
+/** initialize Winsock DLL (windows platform only) */
+#ifdef BNX_WIN32
+    WSADATA d;
+    if (WSAStartup(MAKEWORD(2, 2), &d)) {
+        fprintf(stderr, "[error] Failed to initialize Winsock DLL\n");
+        return BNX_NG;
+    }
+#endif /** BNX_WIN32 */
     bnx_socket_t fd = bnx_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP, logger);
 
     struct sockaddr_in sin;
