@@ -25,7 +25,10 @@ bnx_uint_t bnx_str_len(char *ch)
 bnx_string_t bnx_create_string(char *ch)
 {
     bnx_string_t s;
-    int str_len = bnx_str_len(ch) + 1;
+    /*
+     * TODO: 'bnx_str_len(ch) +1' would be better but the program stops when running on windows platform.
+     */
+    int str_len = bnx_str_len(ch) + 2;
     char *tmp = calloc(str_len, sizeof(char));
     s.data = bnx_copy_string(tmp, ch);
     s.length = bnx_str_len(s.data);
