@@ -44,7 +44,7 @@ bnx_create_access_log_message()
   int min = timer->tm_min;
   int sec = timer->tm_sec;
   int ret;
-  snprintf(message, 38, "%d-%d-%d %d:%d:%d recieved access\n", year, month, mday, hour, min, sec);
+  snprintf(message, 100, "%d-%d-%d %d:%d:%d recieved access\n", year, month, mday, hour, min, sec);
   bnx_string_t lm = bnx_create_string(message);
   return lm;
 }
