@@ -10,6 +10,7 @@ int main(void)
     ng += test_bnx_conf_file(&count);
     ng += test_bnx_log(&count);
 
-    printf("###################### TEST RESULT ####################\n");
-    printf("TOTAL: %d\nOK: %d\nNG: %d\n", count, count-ng, ng);
+    fprintf(stdout, "###################### TEST RESULT ####################\n");
+    fprintf(stdout, "TOTAL: %d\nOK: %d\nNG: %d\n", count, count-ng, ng);
+    fprintf(stdout, "###################### TEST RESULT ####################\n");
 }

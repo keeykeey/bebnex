@@ -9,6 +9,7 @@ TEST_CORE_SRCS="src/core/bnx_conf_file.c \
                 src/core/bnx_connection.c \
                 src/core/bnx_log.c \
                 src/core/bnx_string.c \
+                src/os/bnx_socket.c \
                 test/test.c \
                 test/core/test_bnx_conf_file.c \
                 test/core/test_bnx_connection.c \

@@ -5,6 +5,7 @@
 #include "../../src/core/config.h"
 #include "../test.h"
 
+int test_bnx_copy_string();
 int test_bnx_str_len();
 int test_bnx_create_string();
 int test_bnx_atoui();

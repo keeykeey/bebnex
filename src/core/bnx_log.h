@@ -11,7 +11,7 @@ struct bnx_logger_s {
     char *fpath;
 };
 
-bnx_logger_t *bnx_init_log(bnx_int_t (*fwriter)(bnx_string_t log_message, bnx_logger_t *logger), char *fpath);
+bnx_int_t bnx_init_logger(bnx_logger_t *log, bnx_int_t (*fwriter)(bnx_string_t log_message, bnx_logger_t *logger), char *fpath);
 bnx_int_t bnx_write_log(bnx_string_t log, bnx_logger_t *logger);
 bnx_string_t bnx_create_access_log_message();
 

@@ -31,8 +31,14 @@ int test_bnx_create_listening() {
 int test_bnx_connection(int *count)
 {
     int ng = 0;
-    ng += test_bnx_create_listening();
-    (*count)++;
+
+    if ( test_bnx_create_listening() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_create_listening()\n");
+    }
 
     return ng;
 }

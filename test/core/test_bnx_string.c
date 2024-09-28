@@ -22,7 +22,6 @@ int test_bnx_str_len()
     bnx_int_t len = bnx_str_len(c);
 
     if (len != 12) {
-        printf("len%d", len);
         return BNX_TEST_NG;
     } else {
         return BNX_TEST_OK;
@@ -64,17 +63,38 @@ int test_bnx_atoui()
 int test_bnx_string(int *count)
 {
     int ng = 0;
-    ng += test_bnx_copy_string();
-    (*count)++;
 
-    ng += test_bnx_str_len();
-    (*count)++;
+    if (test_bnx_copy_string() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_copy_string()\n");
+    }
 
-    ng += test_bnx_create_string();
-    (*count)++;
+    if (test_bnx_str_len() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_str_len()\n");
+    }
 
-    ng += test_bnx_atoui();
-    (*count)++;
+    if (test_bnx_create_string() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_create_string()\n");
+    }
+
+    if (test_bnx_create_string() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_atoui()\n");
+    }
 
     return ng;
 

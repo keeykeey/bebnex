@@ -6,9 +6,6 @@
 #include "../test.h"
 
 int test_bnx_read_conf();
-int test_bnx_conf_port();
-int test_bnx_conf_max_con();
-int test_get_bnx_conf_prefix();
-int test_bnx_conf_file();
+int test_bnx_conf_file(int *count);
 
 #endif /** TEST_BNX_CONF_FILE_H */
