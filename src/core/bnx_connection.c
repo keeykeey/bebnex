@@ -44,8 +44,8 @@ int bnx_bind_socket(bnx_socket_t fd, bnx_listening_t *ls)
     ls->fd = fd;
     if (bind(ls->fd, ls->sockaddr, ls->socklen) < 0)
     {
-        fprintf(stderr, BNX_ERROR_MESSAGE);
-        close(ls->fd);
+        fprintf(stderr, "[error] bind() failed: (%d)\n", bnx_get_socket_errno());
+        bnx_close_socket(ls->fd);
         exit(1);
     };
 
@@ -56,8 +56,8 @@ int bnx_listen_socket(bnx_listening_t *ls)
 {
     if (listen(ls->fd, ls->backlog) < 0)
     {
-        fprintf(stderr, BNX_ERROR_MESSAGE);
-        close(ls->fd);
+        fprintf(stderr, "[error] listen() failed: (%d)\n", bnx_get_socket_errno());
+        bnx_close_socket(ls->fd);
         exit(1);
     }
 
@@ -72,13 +72,9 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
         fprintf(stdout, "waiting for connection...\n");
         fflush(stdout);
         int address_length = ls->add_text_max_len;
-        bnx_socket_t new_socket = accept(
-            ls->fd, 
-            ls->sockaddr,
-            &ls->socklen
-        );
+        bnx_socket_t new_socket = bnx_accept(ls, logger);
 
-        read(new_socket, buffer, BUF_LEN);
+        recv(new_socket, buffer, BUF_LEN, 0);
         fflush(stdout);
 
         // write access log
@@ -89,7 +85,7 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
         char response[BUF_LEN] = {};
         char ch;
         if ((fp = fopen(conf.prefix.data, "r")) == NULL) {
-            fprintf(stderr, BNX_ERROR_MESSAGE);
+            fprintf(stderr, "[error] failed to open log file %s\n", conf.prefix.data);
         } else {
             int i = 0;
             while (((ch = fgetc(fp)) != EOF) && (i < BUF_LEN)) {
@@ -97,7 +93,7 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
             }
         }
 
-        write(new_socket, response, strlen(response));
-        close(new_socket);
+        send(new_socket, response, strlen(response), 0);
+        bnx_close_socket(new_socket);
     };
 };

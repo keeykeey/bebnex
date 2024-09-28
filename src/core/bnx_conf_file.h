@@ -3,7 +3,6 @@
 
 #include "./config.h"
 #include "./core.h"
-#include "./bnx_conf_setting.h"
 
 #ifdef BNX_CUSTOM_CONF_FILE_PATH
 #define BNX_CONF_FILE_PATH BNX_CUSTOM_CONF_FILE_PATH
