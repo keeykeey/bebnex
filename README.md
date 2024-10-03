@@ -9,8 +9,10 @@
     --conf-file=/etc/bebnex/bebnex.conf
     --build-path=/usr/local/bin/
     --access-log-file=/var/log/bebnex/bebnex.access.log
-#### if you want debug with gdb, run ./configure with --debug=gdb option.
+#### if you want to debug with gdb, run ./configure with --debug=gdb option.
     --debug=gdb
+#### if you want to use ipv6, run ./configure with -ipv6 option.
+    -ipv6
 ### 3 ./auto/make
 ####
 

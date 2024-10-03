@@ -19,6 +19,9 @@ bnx_create_listening(struct sockaddr *sockaddr, socklen_t socklen)
         case AF_INET:
             ls->add_text_max_len = BNX_INET_ADDR_STRLEN;
             break;
+        case AF_INET6:
+            ls->add_text_max_len = BNX_INET6_ADDR_STRLEN;
+            break;
         default:
             ls->add_text_max_len = BNX_SOCKADDR_STRLEN;
             break;
