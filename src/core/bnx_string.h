@@ -3,6 +3,9 @@
 
 #include "core.h"
 
+#define bnx_memzero(buf, n)     (void) memset(buf, 0, n) 
+#define bnx_memset(buf, c, n)   (void) memset(buf, c, n)
+
 typedef struct bnx_string_s {
     char             *data;
     bnx_uint_t        length;

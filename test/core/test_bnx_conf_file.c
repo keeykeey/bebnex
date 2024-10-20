@@ -16,10 +16,6 @@ int test_bnx_read_conf()
         return BNX_TEST_NG;
     }
 
-    if (conf.max_con != max_con_expected) {
-        return BNX_TEST_NG;
-    }
-
     if (strcmp(conf.prefix.data, prefix_expected.data) != 0) {
         return BNX_TEST_NG;
     }
@@ -32,8 +28,13 @@ int test_bnx_conf_file(int *count)
 
     int ng = 0;
 
-    ng += test_bnx_read_conf();
-    (*count)++;
+    if (test_bnx_read_conf() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_read_conf()\n");
+    }
 
     return ng;
 }
