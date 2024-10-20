@@ -50,13 +50,14 @@ bnx_conf_parse_state_t create_init_bnx_conf_parse_state()
 
 void set_bnx_conf(bnx_conf_t *conf, bnx_conf_parse_state_t *ps)
 {
-    if (strcmp(ps->key, "PORT\0") == 0) {
-        bnx_string_t s = bnx_create_string(ps->value);
-        bnx_uint_t u = bnx_atoui(s);
+    char *dst = calloc(bnx_str_len(ps->value), sizeof(char));
+    bnx_copy_string(dst, ps->value);
 
-        conf->port = bnx_atoui(bnx_create_string(ps->value));
+    if (strcmp(ps->key, "PORT\0") == 0) {
+        bnx_string_t port = bnx_create_string(dst);
+        conf->port = bnx_atoui(port);
     } else if (strcmp(ps->key, "PREFIX\0") == 0) {
-        conf->prefix = bnx_create_string(ps->value);
+        conf->prefix = bnx_create_string(dst);
     }
 }
 

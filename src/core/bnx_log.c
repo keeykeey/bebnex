@@ -1,13 +1,13 @@
 #include "./core.h"
 
-bnx_logger_t *bnx_init_log(
+bnx_int_t bnx_init_logger(
+  bnx_logger_t *log,
   bnx_int_t (*fwriter)(bnx_string_t log, bnx_logger_t *logger),
   char *fpath
 ) {
-  bnx_logger_t *l = (bnx_logger_t *)calloc(1, sizeof(bnx_logger_t));
-  l->fwriter = bnx_write_log;
-  l->fpath = fpath;
-  return l;
+  log->fwriter = bnx_write_log;
+  log->fpath = fpath;
+  return BNX_OK;
 }
 
 bnx_int_t bnx_write_log(bnx_string_t log, bnx_logger_t *logger)
@@ -44,7 +44,7 @@ bnx_create_access_log_message()
   int min = timer->tm_min;
   int sec = timer->tm_sec;
   int ret;
-  snprintf(message, 38, "%d-%d-%d %d:%d:%d recieved access\n", year, month, mday, hour, min, sec);
+  snprintf(message, 100, "%d-%d-%d %d:%d:%d recieved access\n", year, month, mday, hour, min, sec);
   bnx_string_t lm = bnx_create_string(message);
   return lm;
 }

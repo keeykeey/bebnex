@@ -28,8 +28,13 @@ int test_bnx_conf_file(int *count)
 
     int ng = 0;
 
-    ng += test_bnx_read_conf();
-    (*count)++;
+    if (test_bnx_read_conf() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+        fprintf(stdout, "[failed] test_bnx_read_conf()\n");
+    }
 
     return ng;
 }

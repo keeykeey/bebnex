@@ -8,7 +8,7 @@ fi
 cat << END >> $BNX_CONF_SETTING_H
 
 #ifndef $have
-#define $have $value
+#define $have 1
 #endif
 
 END
