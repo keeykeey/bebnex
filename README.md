@@ -17,3 +17,12 @@
 ####
 
 ### 4 make install
+
+## tested platform
+    1 ubuntu22.0.4
+    2 ubuntu24.0.4
+    3 windows server2022
+
+## bebnex is supported only to a limitted extend on windows
+### these features are not available on windows
+    using ipv6

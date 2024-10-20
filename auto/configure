@@ -17,23 +17,26 @@ if [ -e $BNX_CONF_SETTING_H ]; then
   rm   $BNX_CONF_SETTING_H
 fi
 
-
 cat << END > $BNX_CONF_SETTING_H
 #ifndef BNX_CONF_SETTING_H
 #define BNX_CONF_SETTING_H
 END
 
+# write platform information to conf file
+. ./auto/platform
+
 . ./auto/options
 have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CONF_FILE\""   .  ./auto/define
 have=BNX_ACCESS_LOG_FILE value="\"$BNX_ACCESS_LOG_FILE\""   .  ./auto/define
 
-if [ USE_IPV6=YES ]; then
-  echo using ipv6
-  have=BNX_IPV6 . ./auto/have
+if [ "$USE_IPV6" = "YES" ]; then
+  if [ "$BNX_PLATFORM" = "win32" ]; then
+    echo ipv6 is not supported on windows
+  else
+    echo using ipv6
+    have=BNX_IPV6 . ./auto/have
+  fi
 fi
-
-# write platform information to conf file
-. ./auto/platform
 
 cat << END >> $BNX_CONF_SETTING_H
 #endif /** BNX_CONF_SETTING_H */

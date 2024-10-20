@@ -11,6 +11,8 @@ case "$BNX_SYSTEM" in
     BNX_PLATFORM=win32
     have=BNX_WIN32 value="\"$BNX_PLATFORM\"" . ./auto/define
     ;;
+  *)
+    BNX_PLATFORM="$BNX_SYSTEM"
 esac
 
 echo "checking bebnex platform: $BNX_PLATFORM"
