@@ -26,9 +26,10 @@ END
 . ./auto/platform
 
 . ./auto/options
-have=BNX_CUSTOM_CONF_FILE_PATH value="\"$BNX_CONF_FILE\""   .  ./auto/define
-have=BNX_ACCESS_LOG_FILE value="\"$BNX_ACCESS_LOG_FILE\""   .  ./auto/define
+have=BNX_CONF_FILE_PATH value="\"$BNX_CONF_PATH\""          .  ./auto/define
+have=BNX_ACCESS_LOG_FILE value="\"$BNX_ACCESS_LOG_PATH\""   .  ./auto/define
 
+# use ipv6
 if [ "$USE_IPV6" = "YES" ]; then
   if [ "$BNX_PLATFORM" = "win32" ]; then
     echo ipv6 is not supported on windows
@@ -37,6 +38,9 @@ if [ "$USE_IPV6" = "YES" ]; then
     have=BNX_IPV6 . ./auto/have
   fi
 fi
+
+# make system file or directory
+. ./auto/installer
 
 cat << END >> $BNX_CONF_SETTING_H
 #endif /** BNX_CONF_SETTING_H */

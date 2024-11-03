@@ -4,10 +4,6 @@
 #include "./config.h"
 #include "./core.h"
 
-#ifdef BNX_CUSTOM_CONF_FILE_PATH
-#define BNX_CONF_FILE_PATH BNX_CUSTOM_CONF_FILE_PATH
-#endif /** BNX_CUSTOM_CONF_FILE_PATH */
-
 #define CONF_KEY_LEN 256
 #define CONF_VALUE_LEN  256
 

@@ -1,8 +1,17 @@
 #!/bin/sh
 
-BNX_CONF_FILE="/etc/bebnex/bebnex.conf"
-BNX_BUILD_PATH="/usr/local/bin/"
-BNX_ACCESS_LOG_FILE="/var/log/bebnex/bebnex.access.log"
+# <***>_FILE: meaning that it represents file name without directory
+#   ex) bnx_access.log
+# <***>_DIR: meaning that it represents directory without file name (but includes prefix)
+#   ex) /usr/local/bebnex/log/
+# <***>_PATH: meaning that it represents directory and file name
+#   ex) /usr/local/bebnex/log/bnx_access.log
+
+BNX_PREFIX=/usr/local/bebnex/
+
+BNX_CONF_FILE=bebnex.conf
+BNX_ACCESS_LOG_FILE=bebnex.access.log
+
 BNX_DEBUG=
 USE_IPV6=NO
 
@@ -14,10 +23,13 @@ do
   esac
 
   case $options in
-    --conf-file=*)  BNX_CONF_FILE=$value  ;;
-    --build-path=*) BNX_BUILD_PATH=$value ;;
-    --access-log-file=*)   BNX_ACCESS_LOG_FILE=$value   ;;
-    --debug=*)  BNX_DEBUG=$value      ;;
-    -ipv6) USE_IPV6=YES ;;
+    --prefix=*)              BNX_PREFIX=$value               ;;
+    --conf-file=*)           BNX_CONF_FILE=$value            ;;
+    --access-log-file=*)     BNX_ACCESS_LOG_FILE=$value      ;;
+    --debug=*)               BNX_DEBUG=$value                ;;
+    -ipv6)                   USE_IPV6=YES                    ;;
   esac
 done
+
+BNX_CONF_PATH="$BNX_PREFIX""conf/""$BNX_CONF_FILE"
+BNX_ACCESS_LOG_PATH="$BNX_PREFIX""log/""$BNX_ACCESS_LOG_FILE"
