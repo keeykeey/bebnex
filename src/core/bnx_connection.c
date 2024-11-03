@@ -88,7 +88,7 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
         char response[BUF_LEN] = {};
         char ch;
         if ((fp = fopen(conf.prefix.data, "r")) == NULL) {
-            fprintf(stderr, "[error] failed to open log file %s\n", conf.prefix.data);
+            fprintf(stderr, "[error] failed to open index file %s\n", conf.prefix.data);
         } else {
             int i = 0;
             while (((ch = fgetc(fp)) != EOF) && (i < BUF_LEN)) {

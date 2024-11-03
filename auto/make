@@ -3,6 +3,8 @@
 MAKEFILE=Makefile
 
 BUILDFILE=bebnex
+BUILDDIR="$BNX_PREFIX""sbin/"
+
 MODULE=module
 
 TESTFILE=tebnex
@@ -44,16 +46,23 @@ done
 
 cat << END >> $MAKEFILE
 	gcc -o $BUILDFILE [a-zA-Z\_]*\.o $GCC_WIN_OPTION $GCC_DEBUG_OPTION
+	rm -f [a-zA-Z\_]*\.o
 END
 
 # install, clean
-cat << END >> $MAKEFILE
-install: $BUILDFILE
-	install -s $BUILDFILE $BNX_BUILD_PATH
-clean:
-	rm -f *\.o $BUILDFILE $TESTFILE
+# do not use > to over write $BNX_INSTALL
+cat << END >> $BNX_INSTALL
+	install -s $BUILDFILE $BUILDDIR
 END
 
+cat << END >> $MAKEFILE
+install:
+	sh $BNX_INSTALL
+clean:
+	rm -f *\.o $BUILDFILE $TESTFILE $BNX_INSTALL
+END
+
+# tebnex
 cat << END >> $MAKEFILE
 $TESTFILE: $TESTMODULE
 $TESTMODULE:

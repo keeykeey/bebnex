@@ -1,0 +1,26 @@
+BNX_INSTALL="./install"
+INDEX_HTML="$BNX_PREFIX""html/index.html"
+
+
+cat << end > $BNX_INSTALL
+#!/bin/bash
+
+# make prefix directory if not exists
+test -d $BNX_PREFIX || mkdir -p $BNX_PREFIX
+test -d $BNX_PREFIX"conf/" || mkdir -p "$BNX_PREFIX""conf/"
+test -d $BNX_PREFIX"log/" || mkdir -p "$BNX_PREFIX""log/"
+test -d $BNX_PREFIX"sbin/" || mkdir -p "$BNX_PREFIX""sbin/"
+test -d $BNX_PREFIX"html/" || mkdir -p "$BNX_PREFIX""html/"
+
+# make system files
+test -e $BNX_CONF_PATH || touch $BNX_CONF_PATH
+test -e $BNX_ACCESS_LOG_PATH || touch $BNX_ACCESS_LOG_PATH
+
+#INDEX_HTML="$BNX_PREFIX""html/index.html"
+cat << END > $BNX_CONF_PATH
+PREFIX=$INDEX_HTML
+PORT=80
+END
+
+cat ./doc/index.html > $INDEX_HTML
+end
