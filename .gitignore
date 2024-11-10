@@ -7,7 +7,6 @@ root_dev/
 bebnex
 bebnex.exe
 install
-winstall
 tebnex
 
 src/core/bnx_conf_setting.h
