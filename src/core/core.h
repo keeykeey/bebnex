@@ -28,6 +28,13 @@ typedef struct bnx_logger_s bnx_logger_t;
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/types.h>
+
+#ifdef BNX_WIN32
+#include "../os/win32/bnx_process.h"
+#else
+#include "../os/unix/bnx_process.h"
+#endif /** ifdef BNX_WIN32 */
 
 #include "../os/bnx_socket.h"
 #include "../os/unix/bnx_linux_config.h"
@@ -37,6 +44,5 @@ typedef struct bnx_logger_s bnx_logger_t;
 #include "./bnx_conf_file.h"
 #include "./bnx_connection.h"
 #include "./bnx_inet.h"
-
 
 #endif /*CORE_H*/
