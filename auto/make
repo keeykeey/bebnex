@@ -2,9 +2,6 @@
 
 MAKEFILE=Makefile
 
-BUILDFILE=bebnex
-BUILDDIR="$BNX_PREFIX""sbin/"
-
 MODULE=module
 
 TESTFILE=tebnex
@@ -34,7 +31,6 @@ END
 
 . ./auto/source
 # build bebnex
-# TODO: set '-lws2_32' after gcc - c hogehoge.c when built on windows
 for s in $CORE_SRCS
 do
 	src=$s
@@ -50,16 +46,11 @@ cat << END >> $MAKEFILE
 END
 
 # install, clean
-# do not use > to over write $BNX_INSTALL
-cat << END >> $BNX_INSTALL
-	install -s $BUILDFILE $BUILDDIR
-END
-
 cat << END >> $MAKEFILE
 install:
 	sh $BNX_INSTALL
 clean:
-	rm -f *\.o $BUILDFILE $TESTFILE $BNX_INSTALL
+	rm -f *\.o $BUILDFILE $TESTFILE $BNX_INSTALL $BNX_WIN_INSTALL
 END
 
 # tebnex
@@ -79,6 +70,7 @@ done
 
 cat << END >> $MAKEFILE
 	gcc -o $TESTFILE [a-zA-Z\_]*\.o
+	rm -f [a-zA-Z\_]*\.o
 END
 
 cat << END >> $MAKEFILE

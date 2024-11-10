@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BNX_CONF_SETTING_H=./src/core/bnx_conf_setting.h
 
@@ -26,8 +26,10 @@ END
 . ./auto/platform
 
 . ./auto/options
+have=BNX_PREFIX value="\"$BNX_PREFIX\""                     .  ./auto/define
 have=BNX_CONF_FILE_PATH value="\"$BNX_CONF_PATH\""          .  ./auto/define
 have=BNX_ACCESS_LOG_FILE value="\"$BNX_ACCESS_LOG_PATH\""   .  ./auto/define
+have=BNX_ERROR_LOG_FILE value="\"$BNX_ERROR_LOG_PATH\""     .  ./auto/define
 
 # use ipv6
 if [ "$USE_IPV6" = "YES" ]; then
@@ -40,6 +42,8 @@ if [ "$USE_IPV6" = "YES" ]; then
 fi
 
 # make system file or directory
+BUILDFILE=bebnex
+BUILDDIR="$BNX_PREFIX/sbin/"
 . ./auto/installer
 
 cat << END >> $BNX_CONF_SETTING_H

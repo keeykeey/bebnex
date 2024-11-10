@@ -9,6 +9,7 @@
 
 int test_bnx_write_log();
 int test_bnx_create_access_log_message();
+int test_bnx_create_error_log_message();
 int test_bnx_log(int *count);
 
 #endif /** TEST_BNX_LOG_H */
