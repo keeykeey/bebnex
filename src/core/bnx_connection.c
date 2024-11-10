@@ -85,12 +85,13 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
 
         // TODO: refactor
         FILE *fp;
-        char response[BUF_LEN] = {};
+        char response[BUF_LEN] = { "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" };
+        int HEADER_LEN = 41;
         char ch;
         if ((fp = fopen(conf.prefix.data, "r")) == NULL) {
             fprintf(stderr, "[error] failed to open index file %s\n", conf.prefix.data);
         } else {
-            int i = 0;
+            int i = HEADER_LEN;
             while (((ch = fgetc(fp)) != EOF) && (i < BUF_LEN)) {
                 response[i++] = ch;
             }

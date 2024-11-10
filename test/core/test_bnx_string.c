@@ -96,6 +96,7 @@ int test_bnx_string(int *count)
         fprintf(stdout, "[failed] test_bnx_atoui()\n");
     }
 
+    fprintf(stdout, "[done] test_bnx_string\n");
     return ng;
 
 }

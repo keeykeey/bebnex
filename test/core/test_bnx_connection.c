@@ -40,5 +40,6 @@ int test_bnx_connection(int *count)
         fprintf(stdout, "[failed] test_bnx_create_listening()\n");
     }
 
+    fprintf(stdout, "[done] test_bnx_connection\n");
     return ng;
 }
