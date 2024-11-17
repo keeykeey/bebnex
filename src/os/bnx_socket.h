@@ -22,8 +22,8 @@ typedef int bnx_socket_t;
 #endif /** NOT BNX_WIN32 */
 
 
-bnx_socket_t bnx_socket(int __domain, int __Type, int __protocol, bnx_logger_t *logger);
-bnx_socket_t bnx_accept(bnx_listening_t *ls, bnx_logger_t *logger);
+bnx_socket_t bnx_socket(int __domain, int __Type, int __protocol, bnx_logger_t *errlogger);
+bnx_socket_t bnx_accept(bnx_listening_t *ls, bnx_logger_t *errlogger);
 
 
 #endif /** BNX_SOCKET_H */

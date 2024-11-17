@@ -42,12 +42,13 @@ bnx_create_listening(struct sockaddr *sockaddr, socklen_t socklen)
     return ls;
 }
 
-int bnx_bind_socket(bnx_socket_t fd, bnx_listening_t *ls)
+int bnx_bind_socket(bnx_socket_t fd, bnx_listening_t *ls, bnx_logger_t *errlogger)
 {
     ls->fd = fd;
     if (bind(ls->fd, ls->sockaddr, ls->socklen) < 0)
     {
-        fprintf(stderr, "[error] bind() failed: (%d)\n", bnx_get_socket_errno());
+        int eno = bnx_get_socket_errno();
+        errlogger->fwriter(bnx_vsnerrorlog(30, "bind() failed (%d)\n", eno), errlogger);
         bnx_close_socket(ls->fd);
         exit(1);
     };
@@ -55,11 +56,12 @@ int bnx_bind_socket(bnx_socket_t fd, bnx_listening_t *ls)
     return BNX_OK;
 }
 
-int bnx_listen_socket(bnx_listening_t *ls)
+int bnx_listen_socket(bnx_listening_t *ls, bnx_logger_t *errlogger)
 {
     if (listen(ls->fd, ls->backlog) < 0)
     {
-        fprintf(stderr, "[error] listen() failed: (%d)\n", bnx_get_socket_errno());
+        int eno = bnx_get_socket_errno();
+        errlogger->fwriter(bnx_vsnerrorlog(30, "listen() failed (%d)\n", eno), errlogger);
         bnx_close_socket(ls->fd);
         exit(1);
     }
@@ -67,7 +69,7 @@ int bnx_listen_socket(bnx_listening_t *ls)
     return BNX_OK;
 };
 
-int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
+int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *accesslogger)
 {
     char buffer[BUF_LEN];
     while(1)
@@ -75,13 +77,13 @@ int bnx_launch(bnx_listening_t *ls, bnx_conf_t conf, bnx_logger_t *logger)
         fprintf(stdout, "waiting for connection...\n");
         fflush(stdout);
         int address_length = ls->add_text_max_len;
-        bnx_socket_t new_socket = bnx_accept(ls, logger);
+        bnx_socket_t new_socket = bnx_accept(ls, accesslogger);
 
         recv(new_socket, buffer, BUF_LEN, 0);
         fflush(stdout);
 
         // write access log
-        logger->fwriter(bnx_create_access_log_message(), logger);
+        accesslogger->fwriter(bnx_create_access_log_message(), accesslogger);
 
         // TODO: refactor
         FILE *fp;

@@ -15,9 +15,9 @@ int test_bnx_create_listening() {
     if (ls->addr_text.length != sizeof((struct sockaddr *)&sin)) return BNX_TEST_NG;
     if (ls->sockaddr->sa_family == AF_INET && ls->add_text_max_len != BNX_INET_ADDR_STRLEN) return BNX_TEST_NG;
     if (ls->sockaddr->sa_family == AF_INET) {
-        if (ls->add_text_max_len != BNX_INET_ADDR_STRLEN) return BNX_NG;
+        if (ls->add_text_max_len != BNX_INET_ADDR_STRLEN) return BNX_ERROR;
     } else {
-        if (ls->add_text_max_len != BNX_SOCKADDR_STRLEN) return BNX_NG;
+        if (ls->add_text_max_len != BNX_SOCKADDR_STRLEN) return BNX_ERROR;
     }
     if (ls->fd != -1) return BNX_TEST_NG;
     if (ls->type < 0) return BNX_TEST_NG;
