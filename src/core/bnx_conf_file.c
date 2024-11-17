@@ -1,14 +1,14 @@
 #include "./core.h"
 #include "./config.h"
 
-bnx_conf_t bnx_read_conf(bnx_string_t path)
+bnx_conf_t bnx_read_conf(bnx_string_t path, bnx_logger_t *errlogger)
 {
     bnx_conf_t conf;
 
     FILE *fp;
     int ch;
     if ((fp = fopen(path.data, "r")) == NULL) {
-        fprintf(stderr, BNX_ERROR_MESSAGE);
+        errlogger->fwriter(bnx_create_error_log_message("failed to read conf-file"), errlogger);
     } else {
         bnx_conf_parse_state_t ps = create_init_bnx_conf_parse_state();
 
@@ -28,9 +28,8 @@ bnx_conf_t bnx_read_conf(bnx_string_t path)
                 ps.value[(ps.vpos)++] = (char) ch;
             }
         };
+        fclose(fp);
     }
-
-    fclose(fp);
 
     return conf;
 }

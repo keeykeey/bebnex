@@ -15,5 +15,6 @@ bnx_int_t bnx_init_logger(bnx_logger_t *log, bnx_int_t (*fwriter)(bnx_string_t l
 bnx_int_t bnx_write_log(bnx_string_t log, bnx_logger_t *logger);
 bnx_string_t bnx_create_access_log_message();
 bnx_string_t bnx_create_error_log_message(char *log_message);
+bnx_string_t bnx_vsnerrorlog(int size, char *fmt, ...);
 
 #endif /** BNX_LOG_H */
