@@ -21,7 +21,7 @@ typedef struct bnx_conf_pares_state_s {
     bnx_uint_t readv; // TODO: boolean
 } bnx_conf_parse_state_t;
 
-bnx_conf_t bnx_read_conf(bnx_string_t path);
+bnx_conf_t bnx_read_conf(bnx_string_t path, bnx_logger_t *errlogger);
 bnx_conf_parse_state_t create_init_bnx_conf_parse_state();
 void set_bnx_conf(bnx_conf_t *conf, bnx_conf_parse_state_t *state);
 void terminate_parse_bnx_conf_key(bnx_conf_parse_state_t *state);

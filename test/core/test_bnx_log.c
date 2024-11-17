@@ -58,6 +58,15 @@ int test_bnx_create_error_log_message()
     return BNX_TEST_OK;
 }
 
+int test_bnx_vsnerrorlog()
+{
+    bnx_string_t s = bnx_vsnerrorlog(22,"test_bnx_vsnerrorlog()");
+    if (*(s.data) == '\0' || s.length <= 0) {
+        return BNX_TEST_NG;
+    }
+    return BNX_TEST_OK;
+}
+
 int test_bnx_log(int *count)
 {
     init_test_log_file();
@@ -78,6 +87,13 @@ int test_bnx_log(int *count)
     }
 
     if (test_bnx_create_error_log_message() == BNX_TEST_OK) {
+        (*count)++;
+    } else {
+        ng++;
+        (*count)++;
+    }
+
+    if (test_bnx_vsnerrorlog() == BNX_TEST_OK) {
         (*count)++;
     } else {
         ng++;

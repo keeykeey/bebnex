@@ -4,12 +4,14 @@
 
 int test_bnx_read_conf()
 {
+    bnx_logger_t logger;
+    bnx_init_logger(&logger, bnx_write_log, "./test/testfiles/test.log");
     // expected values
     bnx_uint_t port_expected = 8080;
     bnx_string_t prefix_expected = bnx_create_string("/test/testfiles/index.html\0");
 
     bnx_string_t path = bnx_create_string("./test/testfiles/test.conf\0");
-    bnx_conf_t conf = bnx_read_conf(path);
+    bnx_conf_t conf = bnx_read_conf(path, &logger);
 
     if (conf.port != port_expected) {
         return BNX_TEST_NG;

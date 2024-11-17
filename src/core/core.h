@@ -1,8 +1,8 @@
 #ifndef CORE_H
 #define CORE_H
 
-#define BNX_OK 0
-#define BNX_NG 1
+#define BNX_OK       0
+#define BNX_ERROR   -1
 
 typedef int bnx_int_t;
 typedef unsigned int bnx_uint_t;
