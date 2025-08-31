@@ -1,16 +1,4 @@
 .vscode
-Makefile
-bin/
-root_dev/
 
-*.o
-bebnex
-bebnex.exe
-install
-tebnex
-
-src/core/bnx_conf_setting.h
-
-test/testfiles/test.log
-
-.local
+build
+third_party
