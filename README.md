@@ -1,27 +1,37 @@
-# Bebnex
-## How to build
-### 1 configure(creating Makefile)
-    $ ./auto/configure [...options]
-#### options would be like below
-    --prefix=/usr/local/bebnex/
-    --conf-file=bebnex.conf
-    --access-log-file=bebnex.access.log
-#### if you want to debug with gdb, run ./configure with --debug=gdb option.
-    --debug=gdb
-#### if you want to use ipv6, run ./configure with -ipv6 option.
-    -ipv6
-### 2 create bebnex(binary file)
-    $ make
-####
+# Bebex
+Bebnex is web server.
 
-### 3 install bebnex
-    $ make install
+## Build
 
-## tested platform
-    1 ubuntu22.0.4
-    2 ubuntu24.0.4
-    3 windows server2022
+```
+cd path/to/your/bebnex
+git clone git@github.com:cpputest/cpputest.git third_party/cpputest
+```
 
-## bebnex is supported only to a limitted extend on windows
-### these features are not available on windows
-    using ipv6
+```
+cd path/to/your/bebnex/
+mkdir build
+cd build
+```
+
+build bebnex with BNX_LOG_LEVEL=3
+```
+cmake ../    (log level is 3 (default))
+```
+
+build bebnex with BNX_LOG_LEVEL=n(1~4)
+```
+cmake -DBNX_LOG_LEVEL=1 ../  (log level is 1)
+cmake -DBNX_LOG_LEVEL=2 ../  (log level is 2)
+cmake -DBNX_LOG_LEVEL=3 ../  (log level is 3)
+cmake -DBNX_LOG_LEVEL=4 ../  (log level is 4)
+```
+
+build bebnex with debug mode
+```
+cmake -DBNX_DEBUG=1 ../
+```
+
+```
+make
+```
