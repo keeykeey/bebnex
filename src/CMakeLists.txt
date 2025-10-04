@@ -1,6 +1,6 @@
 # excutable file
 add_library(bebnex_lib
-    core/bnx_log.c
+    core/bnx_conf_file.c
 )
 add_executable(bebnex main.c)
 
@@ -10,15 +10,23 @@ add_executable(bebnex main.c)
 if(NOT DEFINED BNX_LOG_LEVEL)
     set(BNX_LOG_LEVEL 3)
 endif()
-target_compile_definitions(bebnex PRIVATE 
+set(BEBNEX_DEFINES
     BNX_LOG_LEVEL=${BNX_LOG_LEVEL}
+    BNX_PREFIX=\"${BNX_PREFIX}\"
 )
-# debug-mode
 if(DEFINED BNX_DEBUG)
-    target_compile_definitions(bebnex PRIVATE 
-        BNX_DEBUG=1
-    )
+    set(BEBNEX_DEFINES
+    ${BEBNEX_DEFINES}
+    BNX_DEBUG=1
+)
 endif()
+
+target_compile_definitions(bebnex PUBLIC 
+    ${BEBNEX_DEFINES}
+)
+target_compile_definitions(bebnex_lib PUBLIC 
+    ${BEBNEX_DEFINES}
+)
 
 target_include_directories(bebnex_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
