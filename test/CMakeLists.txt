@@ -1,6 +1,7 @@
 add_executable(unit_test
     test.cpp
     test_bnx_log.cpp
+    test_bnx_conf_file.cpp
 )
 
 target_include_directories(unit_test PRIVATE
@@ -14,5 +15,4 @@ target_link_libraries(unit_test
     CppUTestExt
 )
 
-# enable_testing()
 add_test(NAME unit_test COMMAND $<TARGET_FILE:unit_test>)
