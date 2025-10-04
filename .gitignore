@@ -1,4 +1,5 @@
 .vscode
+.patch
 
 build
 third_party
