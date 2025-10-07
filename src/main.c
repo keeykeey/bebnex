@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include "core/bnx_log.h"
 #include "core/bnx_conf_file.h"
