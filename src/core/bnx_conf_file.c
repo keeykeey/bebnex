@@ -210,6 +210,7 @@ bnx_code_e bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bnx_
 bnx_code_e bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
 {
     if (root_conf == NULL || fp == NULL) {
+        BNX_LOG_ERROR("failed to read config file (%d)", BNX_INVALID_ARGUMENT);
         return BNX_INVALID_ARGUMENT;
     }
 
@@ -258,6 +259,7 @@ bnx_code_e bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                         current_block = current;
                     } else if (strncmp(token, BNX_CONF_BLOCK_END, strlen(token)) == 0) {
                         if (!current_block || !current_block->parent) {
+                            BNX_LOG_ERROR("failed to read config file (%d)", BNX_ERROR);
                             return BNX_ERROR;
                         } else {
                             bnx_conf_t *tmp = current_block->parent;
@@ -267,9 +269,11 @@ bnx_code_e bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                     }
                     break;
                 case BNX_CONF_NO_MATCH:
-                    return BNX_ERROR;
+                    BNX_LOG_ERROR("fail to read config file. couldn't parse unexpected syntax (%d)", BNX_RUNTIME_ERROR);
+                    return BNX_RUNTIME_ERROR;
             }
         } else {
+            BNX_LOG_ERROR("read token failed while reading conf-file (%d)", code);
             return code;
         }
     }
@@ -293,8 +297,15 @@ bnx_code_e bnx_conf_check_valid_file(FILE *fp)
 
     } while(ch != EOF);
 
-    if (block_start_count != block_end_count) return BNX_ERROR;
-    if (before != '\n') return BNX_ERROR;
+    if (block_start_count != block_end_count) {
+        BNX_LOG_ERROR("Conf-file syntax error(%d). Found %d '{' but found %d '}'", BNX_ERROR, block_start_count, block_end_count);
+        return BNX_ERROR;
+    }
+
+    if (before != '\n') {
+        BNX_LOG_ERROR("Conf-file syntax error(%d). conf-file is expected to end with \\n", BNX_ERROR);
+        return BNX_ERROR;
+    }
 
     return BNX_OK;
 }
