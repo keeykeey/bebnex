@@ -1,6 +1,7 @@
 # excutable file
 add_library(bebnex_lib
     core/bnx_conf_file.c
+    core/bnx_pool.c
 )
 add_executable(bebnex main.c)
 
