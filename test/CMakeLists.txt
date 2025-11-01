@@ -2,6 +2,7 @@ add_executable(unit_test
     test.cpp
     test_bnx_log.cpp
     test_bnx_conf_file.cpp
+    test_bnx_pool.cpp
 )
 
 target_include_directories(unit_test PRIVATE
