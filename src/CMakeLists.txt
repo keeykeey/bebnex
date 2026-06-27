@@ -2,6 +2,7 @@
 add_library(bebnex_lib
     core/bnx_conf_file.c
     core/bnx_pool.c
+    core/bnx_connection.c
 )
 add_executable(bebnex main.c)
 
@@ -22,10 +23,10 @@ if(DEFINED BNX_DEBUG)
 )
 endif()
 
-target_compile_definitions(bebnex PUBLIC 
+target_compile_definitions(bebnex PUBLIC
     ${BEBNEX_DEFINES}
 )
-target_compile_definitions(bebnex_lib PUBLIC 
+target_compile_definitions(bebnex_lib PUBLIC
     ${BEBNEX_DEFINES}
 )
 
