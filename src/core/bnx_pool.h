@@ -21,11 +21,11 @@ struct bnx_pool_s {
     bnx_pool_t    *next;
 };
 
-bnx_code_e bnx_pool_init(bnx_pool_t *pool, size_t size);
-bnx_code_e bnx_pool_destroy(bnx_pool_t *pool);
-bnx_code_e bnx_pool_reset(bnx_pool_t *pool);
-bnx_code_e bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size);
-bnx_code_e bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t size);
+bnx_error_t bnx_pool_init(bnx_pool_t *pool, size_t size);
+bnx_error_t bnx_pool_destroy(bnx_pool_t *pool);
+bnx_error_t bnx_pool_reset(bnx_pool_t *pool);
+bnx_error_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size);
+bnx_error_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t size);
 
 #ifdef __cplusplus
 }

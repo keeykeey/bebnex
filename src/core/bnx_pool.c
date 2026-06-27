@@ -1,12 +1,13 @@
+#include "core/bebnex.h"
 #include "core/bnx_pool.h"
 #include "string.h"
 
-bnx_code_e bnx_pool_init(bnx_pool_t *pool, size_t size)
+bnx_error_t bnx_pool_init(bnx_pool_t *pool, size_t size)
 {
-    if (!pool || size == 0) return BNX_INVALID_ARGUMENT;
+    if (!pool || size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
 
     unsigned char *buf = (unsigned char *)malloc(size);
-    if (!buf) return BNX_MEMORY_ERROR;
+    if (!buf) return bnx_error(BNX_ERROR, "malloc failed");
 
     pool->buf = buf;
     pool->size = size;
@@ -15,12 +16,12 @@ bnx_code_e bnx_pool_init(bnx_pool_t *pool, size_t size)
     pool->current = bnx_align_ptr(pool->start, BNX_PTR_ALIGNMENT);
     pool->next = NULL;
 
-    return BNX_OK;
+    return bnx_success(BNX_OK);
 }
 
-bnx_code_e bnx_pool_destroy(bnx_pool_t *pool)
+bnx_error_t bnx_pool_destroy(bnx_pool_t *pool)
 {
-    if (!pool) return BNX_INVALID_ARGUMENT;
+    if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
 
     if (pool->next) {
         bnx_pool_destroy(pool->next);
@@ -37,31 +38,31 @@ bnx_code_e bnx_pool_destroy(bnx_pool_t *pool)
     pool->end = NULL;
     pool->current = NULL;
 
-    return BNX_OK;
+    return bnx_success(BNX_OK);
 }
 
-bnx_code_e bnx_pool_reset(bnx_pool_t *pool)
+bnx_error_t bnx_pool_reset(bnx_pool_t *pool)
 {
-    if (!pool) return BNX_INVALID_ARGUMENT;
+    if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
 
     if (pool->start) {
         pool->current = bnx_align_ptr(pool->start, BNX_PTR_ALIGNMENT);
     }
 
     if(pool->next) {
-        bnx_code_e result = bnx_pool_reset(pool->next);
+        bnx_error_t result = bnx_pool_reset(pool->next);
 
-        if (result != BNX_OK) {
+        if (result.code != BNX_OK) {
             return result;
         }
     }
 
-    return BNX_OK;
+    return bnx_success(BNX_OK);
 }
 
-bnx_code_e bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+bnx_error_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
 {
-    if (!large_pool || !new_pool || allocation_size == 0) return BNX_INVALID_ARGUMENT;
+    if (!large_pool || !new_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
 
     // make sure new_pool is not pointing to other buffer
     memset(new_pool, 0, sizeof(*new_pool));
@@ -69,7 +70,7 @@ bnx_code_e bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allo
     unsigned char *aligned = bnx_align_ptr(large_pool->current, BNX_PTR_ALIGNMENT);
 
     // check for available space
-    if ((aligned + allocation_size) > large_pool->end) return BNX_MEMORY_ERROR;
+    if ((aligned + allocation_size) > large_pool->end) return bnx_error(BNX_ERROR, "Memory error");
 
     new_pool->buf = aligned;
     new_pool->size = allocation_size;
@@ -84,19 +85,19 @@ bnx_code_e bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allo
     // advance large_pool->current. otherwise next allocation would be overlapped
     large_pool->current += allocation_size;
 
-    return BNX_OK;
+    return bnx_success(BNX_OK);
 }
 
-bnx_code_e bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+bnx_error_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
 {
-    if (!new_pool || !large_pool || allocation_size == 0) return BNX_INVALID_ARGUMENT;
+    if (!new_pool || !large_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
 
     // make sure new_pool is not pointing to other buffer
     memset(new_pool, 0, sizeof(*new_pool));
 
     unsigned char *aligned = bnx_align_ptr(large_pool->current, BNX_PTR_ALIGNMENT);
 
-    if ((aligned + allocation_size) > large_pool->end) return BNX_MEMORY_ERROR;
+    if ((aligned + allocation_size) > large_pool->end) return bnx_error(BNX_ERROR, "memory error");
 
     new_pool->buf = aligned;
     new_pool->size = allocation_size;
@@ -108,5 +109,5 @@ bnx_code_e bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allo
     // advance large_pool->current, otherwise next allocation would be overlapped
     large_pool->current += allocation_size;
 
-    return BNX_OK;
+    return bnx_success(BNX_OK);
 }
