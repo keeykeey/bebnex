@@ -2,6 +2,7 @@
 #include "core/bebnex.h"
 #include "core/bnx_conf_file.h"
 #include "cassert"
+#include "core/bnx_connection.h"
 
 TEST_GROUP(BnxReadToken){};
 TEST(BnxReadToken, read_token_space)
@@ -545,8 +546,10 @@ TEST(BnxConfAddChildren, add_same_child_twice_fail)
     CHECK_EQUAL(0, https->children_count);
     CHECK_EQUAL(http, server->parent);
     CHECK_EQUAL(server, http->children[0]);
-}
 
+    bnx_conf_free(&http);
+    bnx_conf_free(&https);
+}
 
 TEST_GROUP(BnxConfAddValue) {};
 TEST(BnxConfAddValue, add_one_value)
@@ -558,6 +561,8 @@ TEST(BnxConfAddValue, add_one_value)
     STRCMP_EQUAL("apple", fruits->value[0]);
     CHECK_EQUAL(1, fruits->value_count);
     CHECK_EQUAL(BNX_OK, error.code);
+
+    bnx_conf_free(&fruits);
 }
 
 TEST(BnxConfAddValue, add_some_value)
@@ -571,6 +576,8 @@ TEST(BnxConfAddValue, add_some_value)
     STRCMP_EQUAL("banana", fruits->value[1]);
     STRCMP_EQUAL("orange", fruits->value[2]);
     CHECK_EQUAL(3, fruits->value_count);
+
+    bnx_conf_free(&fruits);
 }
 
 TEST(BnxConfAddValue, execute_with_invalid_argument)
@@ -604,20 +611,7 @@ TEST(BnxConfValidPair, parse_succcess)
     CHECK_EQUAL(BNX_OK, result.code);
 
     bnx_conf_free(&root);
-}
-
-TEST(BnxConfValidPair, parse_succcess_with_pointer_pointer)
-{
-    bnx_conf_t *root = NULL;
-    bnx_conf_t *http = NULL;
-    bnx_conf_t **current = &root;
-    bnx_conf_init(current, "server", sizeof("server"));
-    bnx_conf_init(&http, "listen", sizeof("listen"));
-
-    bnx_error_t result = bnx_conf_valid_pair(root, http, conf_pair, size);
-    CHECK_EQUAL(BNX_OK, result.code);
-
-    bnx_conf_free(&root);
+    bnx_conf_free(&http);
 }
 
 TEST(BnxConfValidPair, parse_fail)
