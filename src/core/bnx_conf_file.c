@@ -139,11 +139,12 @@ bnx_error_t bnx_conf_free(bnx_conf_t **conf_ptr)
             conf->value[i] = NULL;
         }
         free(conf->value);
+        conf->value = NULL;
     }
 
     if (conf->children) {
         for (size_t i = 0; i < conf->children_count; i++) {
-            bnx_conf_free(&(conf->children[0]));
+            bnx_conf_free(&(conf->children[i]));
         }
         free(conf->children);
         conf->children = NULL;
@@ -231,11 +232,12 @@ bnx_error_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                     if (e.code != BNX_OK) {
                         return e;
                     } else {
-                        size_t size = sizeof(bnx_allowed_conf_pair) / sizeof(bnx_allowed_conf_key_array[0]);
+                        size_t size = sizeof(bnx_allowed_conf_pair) / sizeof(bnx_allowed_conf_pair[0]);
                         e = bnx_conf_valid_pair(current, child_conf, bnx_allowed_conf_pair, size);
                         if (e.code == BNX_OK) {
                             e = bnx_conf_add_child(current, child_conf);
                             if (e.code != BNX_OK) {
+                                bnx_conf_free(&child_conf);
                                 return e;
                             } else {
                                 // go to next loop.
@@ -243,6 +245,7 @@ bnx_error_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                                 break;
                             }
                         } else {
+                            bnx_conf_free(&child_conf);
                             return e;
                         }
                     }
@@ -272,8 +275,8 @@ bnx_error_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                     BNX_LOG_ERROR("fail to read configuration file. couldn't parse unexpected syntax");
                     return bnx_error(BNX_ERROR, "failed to read configuration file");
             }
-        // } else if (error.code == BNX_DONE) { // TODO
-            // TODO
+        } else if (error.code == BNX_DONE) { // reached EOF
+            return bnx_success(error.code);
         } else { // error.code == BNX_ERROR
             BNX_LOG_ERROR("read token failed while reading configuration file");
             return bnx_error(error.code, "read token failed while reading configuration file");
@@ -288,7 +291,7 @@ bnx_error_t bnx_conf_check_valid_file(FILE *fp)
     int block_start_count = 0;
     int block_end_count = 0;
 
-    int ch;
+    int ch = 0;
     int before;
     do {
         if (ch) before = ch;
