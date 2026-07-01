@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "core/bnx_log.h"
 #include "core/bnx_conf_file.h"
 
@@ -21,8 +20,8 @@ int main(void)
     
     bnx_conf_t *root = NULL;
     bnx_conf_init(&root, "root", 4);
-    bnx_code_e result = bnx_conf_read(root, fp);
-    if (result == BNX_EOF) {
+    bnx_return_t result = bnx_conf_read(root, fp);
+    if (result.code == BNX_DONE) {
         BNX_LOG_INFO("conf->children_count: (%lu)", root->children_count);
 
         fprintf(stdout, "conf.http: %s\n", root->children[0]->key);

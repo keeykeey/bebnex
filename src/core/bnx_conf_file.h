@@ -83,19 +83,19 @@ static const bnx_conf_pair_t bnx_allowed_conf_pair[] = {
     { BNX_CONF_SERVER, BNX_CONF_LOCATION },
 };
 
-bnx_error_t bnx_read_token(FILE *fp, char *buf, size_t size);
+bnx_return_t bnx_read_token(FILE *fp, char *buf, size_t size);
 bnx_conf_token_kind_t bnx_conf_token_kind(const char *token);
-bnx_error_t bnx_conf_allowed_key(const char *ch, const char *allowed_keys[], size_t arr_size);
-bnx_error_t bnx_conf_reserved_token(const char *token, const char *reserved_token[], size_t arr_size);
+bnx_return_t bnx_conf_allowed_key(const char *ch, const char *allowed_keys[], size_t arr_size);
+bnx_return_t bnx_conf_reserved_token(const char *token, const char *reserved_token[], size_t arr_size);
 
-bnx_error_t bnx_conf_init(bnx_conf_t **conf, const char *key, size_t key_length);
-bnx_error_t bnx_conf_free(bnx_conf_t **conf);
-bnx_error_t bnx_conf_add_child(bnx_conf_t *conf, bnx_conf_t *child);
-bnx_error_t bnx_conf_add_value(bnx_conf_t *conf, const char *value);
-bnx_error_t bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bnx_conf_pair_t allowed[], size_t size);
+bnx_return_t bnx_conf_init(bnx_conf_t **conf, const char *key, size_t key_length);
+bnx_return_t bnx_conf_free(bnx_conf_t **conf);
+bnx_return_t bnx_conf_add_child(bnx_conf_t *conf, bnx_conf_t *child);
+bnx_return_t bnx_conf_add_value(bnx_conf_t *conf, const char *value);
+bnx_return_t bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bnx_conf_pair_t allowed[], size_t size);
 
-bnx_error_t bnx_conf_read(bnx_conf_t *conf, FILE *fp);
-bnx_error_t bnx_conf_check_valid_file(FILE *fp);
+bnx_return_t bnx_conf_read(bnx_conf_t *conf, FILE *fp);
+bnx_return_t bnx_conf_check_valid_file(FILE *fp);
 
 
 #ifdef __cplusplus

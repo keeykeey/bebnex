@@ -7,7 +7,7 @@
 #include "core/bnx_conf_file.h"
 #include "core/bnx_log.h"
 
-bnx_error_t bnx_read_token(FILE *fp, char *buf, size_t size)
+bnx_return_t bnx_read_token(FILE *fp, char *buf, size_t size)
 {
     if (fp == NULL || buf == NULL || size == 0) {
         return bnx_error(BNX_ERROR, "invalid argument");
@@ -51,7 +51,7 @@ bnx_conf_token_kind_t bnx_conf_token_kind(const char *token)
         return BNX_CONF_NO_MATCH;
     }
 
-    bnx_error_t result;
+    bnx_return_t result;
     size_t key_array_length = sizeof(bnx_allowed_conf_key_array) / sizeof(bnx_allowed_conf_key_array[0]);
 
     result = bnx_conf_allowed_key(token, bnx_allowed_conf_key_array, key_array_length);
@@ -68,7 +68,7 @@ bnx_conf_token_kind_t bnx_conf_token_kind(const char *token)
     return BNX_CONF_VALUE;
 }
 
-bnx_error_t bnx_conf_allowed_key(const char *ch, const char *allowed_keys[], size_t arr_size)
+bnx_return_t bnx_conf_allowed_key(const char *ch, const char *allowed_keys[], size_t arr_size)
 {
     if (!ch) {
         return bnx_error(BNX_ERROR, "invalid argument");
@@ -86,7 +86,7 @@ bnx_error_t bnx_conf_allowed_key(const char *ch, const char *allowed_keys[], siz
     return bnx_error(BNX_ERROR, "key is not allowed");
 }
 
-bnx_error_t bnx_conf_reserved_token(const char *token, const char *reserved_tokens[], size_t arr_size)
+bnx_return_t bnx_conf_reserved_token(const char *token, const char *reserved_tokens[], size_t arr_size)
 {
     if (!token) return bnx_error(BNX_ERROR, "invalid argument");
 
@@ -102,7 +102,7 @@ bnx_error_t bnx_conf_reserved_token(const char *token, const char *reserved_toke
     return bnx_error(BNX_ERROR, "token is not reserved");
 }
 
-bnx_error_t bnx_conf_init(bnx_conf_t **out_conf, const char *key, size_t key_length)
+bnx_return_t bnx_conf_init(bnx_conf_t **out_conf, const char *key, size_t key_length)
 {
 
     if (!out_conf) return bnx_error(BNX_ERROR, "invalid argument");
@@ -128,7 +128,7 @@ bnx_error_t bnx_conf_init(bnx_conf_t **out_conf, const char *key, size_t key_len
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_conf_free(bnx_conf_t **conf_ptr)
+bnx_return_t bnx_conf_free(bnx_conf_t **conf_ptr)
 {
     if (!conf_ptr || !*conf_ptr) return bnx_error(BNX_ERROR, "invalid argument");
 
@@ -156,7 +156,7 @@ bnx_error_t bnx_conf_free(bnx_conf_t **conf_ptr)
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_conf_add_child(bnx_conf_t *conf, bnx_conf_t *child)
+bnx_return_t bnx_conf_add_child(bnx_conf_t *conf, bnx_conf_t *child)
 {
     if (!conf || !child || child->parent) return bnx_error(BNX_ERROR, "invalid argument");
 
@@ -174,7 +174,7 @@ bnx_error_t bnx_conf_add_child(bnx_conf_t *conf, bnx_conf_t *child)
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_conf_add_value(bnx_conf_t *conf, const char *value)
+bnx_return_t bnx_conf_add_value(bnx_conf_t *conf, const char *value)
 {
     if (!conf) return bnx_error(BNX_ERROR, "invalid argument");
 
@@ -192,7 +192,7 @@ bnx_error_t bnx_conf_add_value(bnx_conf_t *conf, const char *value)
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bnx_conf_pair_t allowed[], size_t size)
+bnx_return_t bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bnx_conf_pair_t allowed[], size_t size)
 {
     if (!parent || !child) return bnx_error(BNX_ERROR, "invalid argument");
 
@@ -209,7 +209,7 @@ bnx_error_t bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bnx
     return bnx_error(BNX_ERROR, "not valid configuration pair");
 }
 
-bnx_error_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
+bnx_return_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
 {
     if (root_conf == NULL || fp == NULL) {
         return bnx_error(BNX_ERROR, "invalid argument");
@@ -221,11 +221,11 @@ bnx_error_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
 
     for (;;) {
         bnx_conf_t *child_conf = NULL;
-        bnx_error_t error = bnx_read_token(fp, token, sizeof(token));
+        bnx_return_t error = bnx_read_token(fp, token, sizeof(token));
         if (error.code == BNX_OK) {
             bnx_conf_token_kind_t token_kind = bnx_conf_token_kind(token);
 
-            bnx_error_t e;
+            bnx_return_t e;
             switch (token_kind) {
                 case BNX_CONF_KEY:
                     e = bnx_conf_init(&child_conf, token, strlen(token));
@@ -284,7 +284,7 @@ bnx_error_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
     }
 }
 
-bnx_error_t bnx_conf_check_valid_file(FILE *fp)
+bnx_return_t bnx_conf_check_valid_file(FILE *fp)
 {
     if (!fp) return bnx_error(BNX_ERROR, "Invalid argument");
 
