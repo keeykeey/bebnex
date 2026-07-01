@@ -77,7 +77,7 @@ TEST_GROUP(BnxPoolInit) {};
 TEST(BnxPoolInit, init_success)
 {
     bnx_pool_t pool;
-    bnx_error_t result = bnx_pool_init(&pool, 10);
+    bnx_return_t result = bnx_pool_init(&pool, 10);
 
     CHECK_EQUAL(BNX_OK, result.code);
     CHECK_EQUAL(10, pool.size);
@@ -91,14 +91,14 @@ TEST(BnxPoolInit, init_success)
 
 TEST(BnxPoolInit, init_with_null)
 {
-    bnx_error_t result = bnx_pool_init(NULL, 10);
+    bnx_return_t result = bnx_pool_init(NULL, 10);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
 TEST(BnxPoolInit, init_with_size_zero)
 {
     bnx_pool_t *pool = NULL;
-    bnx_error_t result = bnx_pool_init(pool, 0);
+    bnx_return_t result = bnx_pool_init(pool, 0);
     CHECK_EQUAL(BNX_ERROR, result.code);
     bnx_pool_destroy(pool);
 }
@@ -110,7 +110,7 @@ TEST(BnxPoolDestroy, destroy_pool_success)
 {
     bnx_pool_t pool;
     bnx_pool_init(&pool, 24);
-    bnx_error_t result = bnx_pool_destroy(&pool);
+    bnx_return_t result = bnx_pool_destroy(&pool);
     CHECK_EQUAL(BNX_OK, result.code);
     POINTERS_EQUAL(NULL, pool.buf);
     CHECK_EQUAL(0, pool.size);
@@ -122,7 +122,7 @@ TEST(BnxPoolDestroy, destroy_pool_success)
 
 TEST(BnxPoolDestroy, execute_fail_with_invalid_argument)
 {
-    bnx_error_t result = bnx_pool_destroy(NULL);
+    bnx_return_t result = bnx_pool_destroy(NULL);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -133,7 +133,7 @@ TEST(BnxPoolReset, reset_success)
 {
     bnx_pool_t pool;
     bnx_pool_init(&pool, 20);
-    bnx_error_t result = bnx_pool_reset(&pool);
+    bnx_return_t result = bnx_pool_reset(&pool);
 
     CHECK_EQUAL(BNX_OK, result.code);
     POINTERS_EQUAL(pool.current, pool.start);
@@ -142,7 +142,7 @@ TEST(BnxPoolReset, reset_success)
 
 TEST(BnxPoolReset, execute_with_invalid_argument)
 {
-    bnx_error_t result = bnx_pool_reset(NULL);
+    bnx_return_t result = bnx_pool_reset(NULL);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -165,7 +165,7 @@ TEST(BnxPcalloc, allocate_success)
     bnx_pool_init(&large_pool, 16);
 
     bnx_pool_t new_pool;
-    bnx_error_t result = bnx_pcalloc(&new_pool, &large_pool, align_size);
+    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, align_size);
 
     CHECK_EQUAL(4, new_pool.size);
     POINTERS_EQUAL(new_pool.start, new_pool.current);
@@ -187,7 +187,7 @@ TEST(BnxPcalloc, check_memory_allocated_sequencely_with_uintptr_size)
     bnx_pool_t another_new_pool;
 
     bnx_pcalloc(&new_pool, &large_pool, align_size);
-    bnx_error_t result = bnx_pcalloc(&another_new_pool, &large_pool, align_size);
+    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, align_size);
 
     CHECK_EQUAL(BNX_OK, result.code);
     CHECK_EQUAL(align_size, another_new_pool.size);
@@ -212,7 +212,7 @@ TEST(BnxPcalloc, check_memory_allocated_sequencely_with_not_uintptr_size)
     bnx_pool_t another_new_pool;
 
     bnx_pcalloc(&new_pool, &large_pool, align_size);
-    bnx_error_t result = bnx_pcalloc(&another_new_pool, &large_pool, align_size);
+    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, align_size);
 
     CHECK_EQUAL(BNX_OK, result.code);
     CHECK_EQUAL(align_size, another_new_pool.size);
@@ -230,14 +230,14 @@ TEST(BnxPcalloc, check_memory_allocated_sequencely_with_not_uintptr_size)
 TEST(BnxPcalloc, execute_fail_with_null_new_pool)
 {
     bnx_pool_t large_pool;
-    bnx_error_t result = bnx_pcalloc(NULL, &large_pool, 16);
+    bnx_return_t result = bnx_pcalloc(NULL, &large_pool, 16);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
 TEST(BnxPcalloc, execute_fail_with_null_large_pool)
 {
     bnx_pool_t new_pool;
-    bnx_error_t result = bnx_pcalloc(&new_pool, NULL, 16);
+    bnx_return_t result = bnx_pcalloc(&new_pool, NULL, 16);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -245,7 +245,7 @@ TEST(BnxPcalloc, execute_fail_with_size_zero)
 {
     bnx_pool_t new_pool;
     bnx_pool_t large_pool;
-    bnx_error_t result = bnx_pcalloc(&new_pool, &large_pool, 0);
+    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 0);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -255,7 +255,7 @@ TEST(BnxPcalloc, execute_with_too_big_size)
     bnx_pool_t large_pool;
     bnx_pool_init(&large_pool, 16);
 
-    bnx_error_t result = bnx_pcalloc(&new_pool, &large_pool, 20);
+    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 20);
 
     CHECK_EQUAL(BNX_ERROR, result.code);
 
@@ -268,7 +268,7 @@ TEST(BnxPcalloc, execute_with_just_size)
     bnx_pool_t large_pool;
     bnx_pool_init(&large_pool, 16);
 
-    bnx_error_t result = bnx_pcalloc(&new_pool, &large_pool, 16);
+    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 16);
 
     CHECK_EQUAL(BNX_OK, result.code);
 
@@ -283,7 +283,7 @@ TEST(BnxPcalloc, execute_fail_with_too_big_size_with_two_allocation)
 
     bnx_pool_init(&large_pool, 16);
     bnx_pcalloc(&new_pool, &large_pool, 8);
-    bnx_error_t result = bnx_pcalloc(&another_new_pool, &large_pool, 16);
+    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, 16);
     CHECK_EQUAL(BNX_ERROR, result.code);
 
     bnx_pool_destroy(&large_pool);
@@ -342,7 +342,7 @@ TEST(BnxPmalloc, check_memory_allocated_sequencely_with_uintptr_size)
     bnx_pool_t another_new_pool;
 
     bnx_pmalloc(&new_pool, &large_pool, align_size);
-    bnx_error_t result = bnx_pmalloc(&another_new_pool, &large_pool, align_size);
+    bnx_return_t result = bnx_pmalloc(&another_new_pool, &large_pool, align_size);
 
     CHECK_EQUAL(BNX_OK, result.code);
     CHECK_EQUAL(align_size, another_new_pool.size);
@@ -367,7 +367,7 @@ TEST(BnxPmalloc, check_memory_allocated_sequencely_with_not_uintptr_size)
     bnx_pool_t another_new_pool;
 
     bnx_pmalloc(&new_pool, &large_pool, align_size);
-    bnx_error_t result = bnx_pmalloc(&another_new_pool, &large_pool, align_size);
+    bnx_return_t result = bnx_pmalloc(&another_new_pool, &large_pool, align_size);
 
     CHECK_EQUAL(BNX_OK, result.code);
     CHECK_EQUAL(align_size, another_new_pool.size);
@@ -385,14 +385,14 @@ TEST(BnxPmalloc, check_memory_allocated_sequencely_with_not_uintptr_size)
 TEST(BnxPmalloc, execute_fail_with_null_new_pool)
 {
     bnx_pool_t large_pool;
-    bnx_error_t result = bnx_pmalloc(NULL, &large_pool, 16);
+    bnx_return_t result = bnx_pmalloc(NULL, &large_pool, 16);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
 TEST(BnxPmalloc, execute_fail_with_null_large_pool)
 {
     bnx_pool_t new_pool;
-    bnx_error_t result = bnx_pmalloc(&new_pool, NULL, 16);
+    bnx_return_t result = bnx_pmalloc(&new_pool, NULL, 16);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -400,7 +400,7 @@ TEST(BnxPmalloc, execute_fail_with_size_zero)
 {
     bnx_pool_t new_pool;
     bnx_pool_t large_pool;
-    bnx_error_t result = bnx_pmalloc(&new_pool, &large_pool, 0);
+    bnx_return_t result = bnx_pmalloc(&new_pool, &large_pool, 0);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -410,7 +410,7 @@ TEST(BnxPmalloc, execute_with_too_big_size)
     bnx_pool_t large_pool;
     bnx_pool_init(&large_pool, 16);
 
-    bnx_error_t result = bnx_pmalloc(&new_pool, &large_pool, 20);
+    bnx_return_t result = bnx_pmalloc(&new_pool, &large_pool, 20);
 
     CHECK_EQUAL(BNX_ERROR, result.code);
 
@@ -423,7 +423,7 @@ TEST(BnxPmalloc, execute_with_just_size)
     bnx_pool_t large_pool;
     bnx_pool_init(&large_pool, 16);
 
-    bnx_error_t result = bnx_pcalloc(&new_pool, &large_pool, 16);
+    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 16);
 
     CHECK_EQUAL(BNX_OK, result.code);
 
@@ -438,7 +438,7 @@ TEST(BnxPmalloc, execute_fail_with_too_big_size_with_two_allocation)
 
     bnx_pool_init(&large_pool, 16);
     bnx_pcalloc(&new_pool, &large_pool, 8);
-    bnx_error_t result = bnx_pcalloc(&another_new_pool, &large_pool, 16);
+    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, 16);
     CHECK_EQUAL(BNX_ERROR, result.code);
 
     bnx_pool_destroy(&large_pool);

@@ -2,7 +2,6 @@
 #include "core/bebnex.h"
 #include "core/bnx_conf_file.h"
 #include "cassert"
-#include "core/bnx_connection.h"
 
 TEST_GROUP(BnxReadToken){};
 TEST(BnxReadToken, read_token_space)
@@ -16,7 +15,7 @@ TEST(BnxReadToken, read_token_space)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, sizeof(buf));
+    bnx_return_t res = bnx_read_token(fp, buf, sizeof(buf));
 
     CHECK_EQUAL(BNX_OK, res.code);
     STRCMP_EQUAL("listen", buf);
@@ -35,7 +34,7 @@ TEST(BnxReadToken, read_token_new_line)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, sizeof(buf));
+    bnx_return_t res = bnx_read_token(fp, buf, sizeof(buf));
 
     CHECK_EQUAL(BNX_OK, res.code);
     STRCMP_EQUAL("listen", buf);
@@ -54,7 +53,7 @@ TEST(BnxReadToken, read_token_tab)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, sizeof(buf));
+    bnx_return_t res = bnx_read_token(fp, buf, sizeof(buf));
 
     CHECK_EQUAL(BNX_OK, res.code);
     STRCMP_EQUAL("listen", buf);
@@ -73,7 +72,7 @@ TEST(BnxReadToken, read_token_eof)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, sizeof(buf));
+    bnx_return_t res = bnx_read_token(fp, buf, sizeof(buf));
 
     CHECK_EQUAL(BNX_DONE, res.code);
     STRCMP_EQUAL("listen", buf);
@@ -92,7 +91,7 @@ TEST(BnxReadToken, read_token_max_length)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, 4);
+    bnx_return_t res = bnx_read_token(fp, buf, 4);
 
     CHECK_EQUAL(BNX_ERROR, res.code);
     STRCMP_EQUAL("lis", buf);
@@ -111,7 +110,7 @@ TEST(BnxReadToken, read_token_starts_with_space)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, sizeof(buf));
+    bnx_return_t res = bnx_read_token(fp, buf, sizeof(buf));
 
     CHECK_EQUAL(BNX_OK, res.code);
     STRCMP_EQUAL("hello", buf);
@@ -130,7 +129,7 @@ TEST(BnxReadToken, read_token_consecutively)
     fseek(fp, 0, SEEK_SET);
 
     char expected[5][8] = {"The", "dog", "eats", "food", "there"};
-    bnx_error_t res;
+    bnx_return_t res;
     for (int i = 0; i < 5; ++i) {
         char buf[8] = {};
         res = bnx_read_token(fp, buf, sizeof(buf));
@@ -151,7 +150,7 @@ TEST(BnxReadToken, read_token_fail)
     fseek(fp, 0, SEEK_SET);
 
     char buf[16] = {0};
-    bnx_error_t res = bnx_read_token(fp, buf, 0);
+    bnx_return_t res = bnx_read_token(fp, buf, 0);
 
     CHECK_EQUAL(BNX_ERROR, res.code);
     STRCMP_EQUAL("", buf);
@@ -235,28 +234,28 @@ TEST_GROUP(BnxConfAllowedKey) {};
 TEST(BnxConfAllowedKey, find_match_key)
 {
     const char *allowed_keys[] = { "apple", "banana", "http", "grape" };
-    bnx_error_t result = bnx_conf_allowed_key("http", allowed_keys, 4);
+    bnx_return_t result = bnx_conf_allowed_key("http", allowed_keys, 4);
     CHECK_EQUAL(BNX_OK, result.code);
 }
 
 TEST(BnxConfAllowedKey, find_no_match_key)
 {
     const char *allowed_keys[] = { "apple", "banana", "orange", "grape" };
-    bnx_error_t result = bnx_conf_allowed_key("http", allowed_keys, 4);
+    bnx_return_t result = bnx_conf_allowed_key("http", allowed_keys, 4);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
 TEST(BnxConfAllowedKey, find_http_success)
 {
     size_t array_count = sizeof(bnx_allowed_conf_key_array) / sizeof(bnx_allowed_conf_key_array[0]);
-    bnx_error_t result = bnx_conf_allowed_key("http", bnx_allowed_conf_key_array, array_count);
+    bnx_return_t result = bnx_conf_allowed_key("http", bnx_allowed_conf_key_array, array_count);
     CHECK_EQUAL(BNX_OK, result.code);
 }
 
 TEST(BnxConfAllowedKey, allowed_conf_key_definition_is_valid)
 {
     size_t array_count = sizeof(bnx_allowed_conf_key_array) / sizeof(bnx_allowed_conf_key_array[0]);
-    bnx_error_t result = bnx_conf_allowed_key("https", bnx_allowed_conf_key_array, array_count);
+    bnx_return_t result = bnx_conf_allowed_key("https", bnx_allowed_conf_key_array, array_count);
     CHECK_EQUAL(BNX_OK, result.code);
     result = bnx_conf_allowed_key("server", bnx_allowed_conf_key_array, array_count);
     CHECK_EQUAL(BNX_OK, result.code);
@@ -269,21 +268,21 @@ TEST(BnxConfAllowedKey, allowed_conf_key_definition_is_valid)
 TEST(BnxConfAllowedKey, execute_with_invalid_argument)
 {
     size_t array_count = sizeof(bnx_allowed_conf_key_array) / sizeof(bnx_allowed_conf_key_array[0]);
-    bnx_error_t result = bnx_conf_allowed_key(NULL, bnx_allowed_conf_key_array, array_count);
+    bnx_return_t result = bnx_conf_allowed_key(NULL, bnx_allowed_conf_key_array, array_count);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
 TEST(BnxConfAllowedKey, execute_with_next_line)
 {
     size_t array_count = sizeof(bnx_allowed_conf_key_array) / sizeof(bnx_allowed_conf_key_array[0]);
-    bnx_error_t result = bnx_conf_allowed_key("\n", bnx_allowed_conf_key_array, array_count);
+    bnx_return_t result = bnx_conf_allowed_key("\n", bnx_allowed_conf_key_array, array_count);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
 TEST(BnxConfAllowedKey, execute_with_space)
 {
     size_t array_count = sizeof(bnx_allowed_conf_key_array) / sizeof(bnx_allowed_conf_key_array[0]);
-    bnx_error_t result = bnx_conf_allowed_key(" ", bnx_allowed_conf_key_array, array_count);
+    bnx_return_t result = bnx_conf_allowed_key(" ", bnx_allowed_conf_key_array, array_count);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -296,7 +295,7 @@ TEST(BnxConfReservedToken, match_reserved_token)
     };
 
     size_t arr_size = sizeof(reserved_token)/sizeof(reserved_token[0]);
-    bnx_error_t result = bnx_conf_reserved_token("{", reserved_token, 8);
+    bnx_return_t result = bnx_conf_reserved_token("{", reserved_token, 8);
     CHECK_EQUAL(BNX_OK, result.code);
 }
 
@@ -307,7 +306,7 @@ TEST(BnxConfReservedToken, match_reserved_token_at_last)
     };
 
     size_t arr_size = sizeof(reserved_token)/sizeof(reserved_token[0]);
-    bnx_error_t result = bnx_conf_reserved_token("\n", reserved_token, 8);
+    bnx_return_t result = bnx_conf_reserved_token("\n", reserved_token, 8);
     CHECK_EQUAL(BNX_OK, result.code);
 }
 
@@ -318,7 +317,7 @@ TEST(BnxConfReservedToken, match_fail)
     };
 
     size_t arr_size = sizeof(reserved_token)/sizeof(reserved_token[0]);
-    bnx_error_t result = bnx_conf_reserved_token("+", reserved_token, 8);
+    bnx_return_t result = bnx_conf_reserved_token("+", reserved_token, 8);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -329,7 +328,7 @@ TEST(BnxConfReservedToken, execute_with_invalid_argument)
     };
 
     size_t arr_size = sizeof(reserved_token)/sizeof(reserved_token[0]);
-    bnx_error_t result = bnx_conf_reserved_token(NULL, reserved_token, 8);
+    bnx_return_t result = bnx_conf_reserved_token(NULL, reserved_token, 8);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -338,7 +337,7 @@ TEST_GROUP(BnxConfInit){};
 TEST(BnxConfInit, init_conf_success)
 {
     bnx_conf_t *conf = NULL;
-    bnx_error_t res = bnx_conf_init(&conf, "http", 4);
+    bnx_return_t res = bnx_conf_init(&conf, "http", 4);
     CHECK_EQUAL(BNX_OK, res.code);
     POINTERS_EQUAL(NULL, conf->parent);
     STRCMP_EQUAL("http", conf->key);
@@ -354,7 +353,7 @@ TEST(BnxConfInit, init_conf_with_just_key_length)
 {
     assert(BNX_CONF_KEY_MAX_LENGTH == 16);
     bnx_conf_t *conf = NULL;
-    bnx_error_t res = bnx_conf_init(&conf, "0123456789abcdef", 16);
+    bnx_return_t res = bnx_conf_init(&conf, "0123456789abcdef", 16);
     CHECK_EQUAL(BNX_OK, res.code);
 
     POINTERS_EQUAL(NULL, conf->parent);
@@ -371,7 +370,7 @@ TEST(BnxConfInit, init_conf_with_too_long_key)
 {
     assert(BNX_CONF_KEY_MAX_LENGTH == 16);
     bnx_conf_t *conf = NULL;
-    bnx_error_t res = bnx_conf_init(&conf, "12345678901234567890", 20);
+    bnx_return_t res = bnx_conf_init(&conf, "12345678901234567890", 20);
     CHECK_EQUAL(BNX_OK, res.code);
 
     POINTERS_EQUAL(NULL, conf->parent);
@@ -388,7 +387,7 @@ TEST(BnxConfInit, init_conf_with_too_long_key)
 TEST_GROUP(BnxConfFree) {};
 TEST(BnxConfFree, free_nullptr)
 {
-    bnx_error_t res = bnx_conf_free(NULL);
+    bnx_return_t res = bnx_conf_free(NULL);
     CHECK_EQUAL(BNX_ERROR, res.code);
 }
 
@@ -423,7 +422,7 @@ TEST(BnxConfAddChildren, add_first_child)
     bnx_conf_init(&http, "http", 4);
     bnx_conf_init(&server, "server", 6);
 
-    bnx_error_t result = bnx_conf_add_child(http, server);
+    bnx_return_t result = bnx_conf_add_child(http, server);
     // check return value
     CHECK_EQUAL(BNX_OK, result.code);
     // check http
@@ -537,7 +536,7 @@ TEST(BnxConfAddChildren, add_same_child_twice_fail)
     bnx_conf_init(&https, "https", 5);
     bnx_conf_init(&server, "server", 6);
 
-    bnx_error_t result = bnx_conf_add_child(http, server);
+    bnx_return_t result = bnx_conf_add_child(http, server);
     CHECK_EQUAL(BNX_OK, result.code);
 
     result = bnx_conf_add_child(https, server);
@@ -554,7 +553,7 @@ TEST(BnxConfAddChildren, add_same_child_twice_fail)
 TEST_GROUP(BnxConfAddValue) {};
 TEST(BnxConfAddValue, add_one_value)
 {
-    bnx_error_t error;
+    bnx_return_t error;
     bnx_conf_t *fruits = NULL;
     bnx_conf_init(&fruits, "fruits", 6);
     error = bnx_conf_add_value(fruits, "apple");
@@ -582,7 +581,7 @@ TEST(BnxConfAddValue, add_some_value)
 
 TEST(BnxConfAddValue, execute_with_invalid_argument)
 {
-    bnx_error_t result;
+    bnx_return_t result;
     result = bnx_conf_add_value(NULL, "foo");
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
@@ -607,7 +606,7 @@ TEST(BnxConfValidPair, parse_succcess)
     bnx_conf_init(&root, "server", sizeof("server"));
     bnx_conf_init(&http, "listen", sizeof("listen"));
 
-    bnx_error_t result = bnx_conf_valid_pair(root, http, conf_pair, size);
+    bnx_return_t result = bnx_conf_valid_pair(root, http, conf_pair, size);
     CHECK_EQUAL(BNX_OK, result.code);
 
     bnx_conf_free(&root);
@@ -621,7 +620,7 @@ TEST(BnxConfValidPair, parse_fail)
     bnx_conf_init(&hoge, "hoge", 4);
     bnx_conf_init(&http, "http", sizeof("http"));
 
-    bnx_error_t result = bnx_conf_valid_pair(hoge, http, conf_pair, size);
+    bnx_return_t result = bnx_conf_valid_pair(hoge, http, conf_pair, size);
     CHECK_EQUAL(BNX_ERROR, result.code);
 
     bnx_conf_free(&hoge);
@@ -633,7 +632,7 @@ TEST(BnxConfValidPair, parse_invalid_argument_both)
     bnx_conf_t *parent = NULL;
     bnx_conf_t *child = NULL;
 
-    bnx_error_t result = bnx_conf_valid_pair(parent, child, conf_pair, size);
+    bnx_return_t result = bnx_conf_valid_pair(parent, child, conf_pair, size);
     CHECK_EQUAL(BNX_ERROR, result.code);
 }
 
@@ -643,7 +642,7 @@ TEST(BnxConfValidPair, parse_invalid_argument_parent)
     bnx_conf_t *child = NULL;
     bnx_conf_init(&child, "server", 4);
 
-    bnx_error_t result = bnx_conf_valid_pair(parent, child, conf_pair, size);
+    bnx_return_t result = bnx_conf_valid_pair(parent, child, conf_pair, size);
     CHECK_EQUAL(BNX_ERROR, result.code);
 
     bnx_conf_free(&child);
@@ -655,7 +654,7 @@ TEST(BnxConfValidPair, parse_invalid_argument_child)
     bnx_conf_t *child = NULL;
     bnx_conf_init(&parent, "https", 4);
 
-    bnx_error_t result = bnx_conf_valid_pair(parent, child, conf_pair, size);
+    bnx_return_t result = bnx_conf_valid_pair(parent, child, conf_pair, size);
     CHECK_EQUAL(BNX_ERROR, result.code);
 
     bnx_conf_free(&parent);
@@ -673,7 +672,7 @@ TEST(BnxConfRead, read_one_http_block_success)
     fprintf(fp, "http {\n server { listen 80 }\n}\n");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_read(root, fp);
+    bnx_return_t result = bnx_conf_read(root, fp);
     CHECK_EQUAL(BNX_DONE, result.code);
     // http
     CHECK_EQUAL(1, root->children_count);
@@ -707,7 +706,7 @@ TEST(BnxConfRead, read_two_brother_block_success)
     fseek(fp, 0, SEEK_SET);
 
 
-    bnx_error_t result = bnx_conf_read(root, fp);
+    bnx_return_t result = bnx_conf_read(root, fp);
     CHECK_EQUAL(BNX_DONE, result.code);
 
     // http
@@ -770,7 +769,7 @@ https {\n\
 ");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_read(root, fp);
+    bnx_return_t result = bnx_conf_read(root, fp);
     CHECK_EQUAL(BNX_DONE, result.code);
 
     // http
@@ -822,7 +821,7 @@ TEST(BnxConfRead, read_fail_with_block_end_without_block_start)
     fprintf(fp, "http{server }\n");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_read(root, fp);
+    bnx_return_t result = bnx_conf_read(root, fp);
     CHECK_EQUAL(BNX_ERROR, result.code);
 
     fclose(fp);
@@ -840,7 +839,7 @@ TEST(BnxConfCheckValidFile, check_success)
     fprintf(fp, "http { server { listen 80 } }\n");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_check_valid_file(fp);
+    bnx_return_t result = bnx_conf_check_valid_file(fp);
     CHECK_EQUAL(BNX_OK, result.code);
     fclose(fp);
 }
@@ -853,7 +852,7 @@ TEST(BnxConfCheckValidFile, check_file_end_with_next_line)
     fprintf(fp, "bebnex config file is expected to end with next line");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_check_valid_file(fp);
+    bnx_return_t result = bnx_conf_check_valid_file(fp);
     CHECK_EQUAL(BNX_ERROR, result.code);
     fclose(fp);
 }
@@ -866,7 +865,7 @@ TEST(BnxConfCheckValidFile, ensure_same_number_of_bracket_start_and_end)
     fprintf(fp, "{ raise ERROR if number of bracket start { { != number of bracket end } }\n");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_check_valid_file(fp);
+    bnx_return_t result = bnx_conf_check_valid_file(fp);
     CHECK_EQUAL(BNX_ERROR, result.code);
     fclose(fp);
 }
@@ -880,7 +879,7 @@ TEST(BnxConfCheckValidFile, ensure_bracket_is_after_spaces)
     fprintf(fp, "http{ server\n");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_check_valid_file(fp);
+    bnx_return_t result = bnx_conf_check_valid_file(fp);
     CHECK_EQUAL(BNX_ERROR, result.code);
     fclose(fp);
 }
@@ -893,7 +892,7 @@ TEST(BnxConfCheckValidFile, ensure_bracket_is_before_spaces)
     fprintf(fp, "http {server\n");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_check_valid_file(fp);
+    bnx_return_t result = bnx_conf_check_valid_file(fp);
     CHECK_EQUAL(BNX_ERROR, result.code);
     fclose(fp);
 }
@@ -906,7 +905,7 @@ TEST(BnxConfCheckValidFile, ensure_end_with_next_line)
     fprintf(fp, "http { server { listen 80 } }");
     fseek(fp, 0, SEEK_SET);
 
-    bnx_error_t result = bnx_conf_check_valid_file(fp);
+    bnx_return_t result = bnx_conf_check_valid_file(fp);
     CHECK_EQUAL(BNX_ERROR, result.code);
     fclose(fp);
 }

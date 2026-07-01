@@ -2,7 +2,7 @@
 #include "core/bnx_pool.h"
 #include "string.h"
 
-bnx_error_t bnx_pool_init(bnx_pool_t *pool, size_t size)
+bnx_return_t bnx_pool_init(bnx_pool_t *pool, size_t size)
 {
     if (!pool || size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
 
@@ -19,7 +19,7 @@ bnx_error_t bnx_pool_init(bnx_pool_t *pool, size_t size)
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_pool_destroy(bnx_pool_t *pool)
+bnx_return_t bnx_pool_destroy(bnx_pool_t *pool)
 {
     if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
 
@@ -41,7 +41,7 @@ bnx_error_t bnx_pool_destroy(bnx_pool_t *pool)
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_pool_reset(bnx_pool_t *pool)
+bnx_return_t bnx_pool_reset(bnx_pool_t *pool)
 {
     if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
 
@@ -50,7 +50,7 @@ bnx_error_t bnx_pool_reset(bnx_pool_t *pool)
     }
 
     if(pool->next) {
-        bnx_error_t result = bnx_pool_reset(pool->next);
+        bnx_return_t result = bnx_pool_reset(pool->next);
 
         if (result.code != BNX_OK) {
             return result;
@@ -60,7 +60,7 @@ bnx_error_t bnx_pool_reset(bnx_pool_t *pool)
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+bnx_return_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
 {
     if (!large_pool || !new_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
 
@@ -88,7 +88,7 @@ bnx_error_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t all
     return bnx_success(BNX_OK);
 }
 
-bnx_error_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+bnx_return_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
 {
     if (!new_pool || !large_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
 
