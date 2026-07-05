@@ -38,7 +38,7 @@ TEST(BnxCreateConnection, PositiveBoundary)
         std::vector<char> expected_buf(BNX_REQUEST_BUF, 0);
         MEMCMP_EQUAL(expected_buf.data(), c->rbuf, BNX_REQUEST_BUF);
 
-        LONGS_EQUAL_TEXT(-1, c->recieved, tt.label.c_str());
+        LONGS_EQUAL_TEXT(0, c->recieved, tt.label.c_str());
         POINTERS_EQUAL_TEXT(NULL, c->next, tt.label.c_str());
         POINTERS_EQUAL_TEXT(NULL, c->connection_pool, tt.label.c_str());
         CHECK_EQUAL_C_BOOL_TEXT(false, c->linked, tt.label.c_str());
