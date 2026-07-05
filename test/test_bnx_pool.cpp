@@ -1,6 +1,8 @@
 #include <CppUTest/CommandLineTestRunner.h>
-#include "core/bebnex.h"
-#include "core/bnx_pool.h"
+extern "C" {
+    #include "core/bebnex.h"
+    #include "core/bnx_pool.h"
+}
 
 TEST_GROUP(BnxAlignPtr)
 {

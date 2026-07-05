@@ -1,9 +1,11 @@
 #include <CppUTest/CommandLineTestRunner.h>
 #include <climits>
 #include <vector>
-#include "CppUTest/TestHarness_c.h"
-#include "CppUTest/UtestMacros.h"
-#include "core/bnx_connection.h"
+#include <CppUTest/TestHarness_c.h>
+#include <CppUTest/UtestMacros.h>
+extern "C" {
+    #include "core/bnx_connection.h"
+}
 
 TEST_GROUP(BnxCreateConnection)
 {

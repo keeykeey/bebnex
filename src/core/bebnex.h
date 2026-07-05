@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus__
-extern "C" {
-#endif
-
 #define bnx_success(code) ((bnx_return_t){code, NULL, NULL, 0})              // BNX_OK or BNX_DONE is expected
 #define bnx_error(code, msg) ((bnx_return_t){code, msg, __FILE__, __LINE__})
 
@@ -23,7 +19,3 @@ typedef struct bnx_return_s {
     const char *file;    // __FILE__
     int line;            // __LINE__
 } bnx_return_t;
-
-#ifdef __cplusplus__
-}
-#endif

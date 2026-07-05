@@ -1,7 +1,9 @@
 #include <CppUTest/CommandLineTestRunner.h>
-#include "core/bebnex.h"
-#include "core/bnx_conf_file.h"
-#include "cassert"
+#include <cassert>
+extern "C" {
+    #include "core/bebnex.h"
+    #include "core/bnx_conf_file.h"
+}
 
 TEST_GROUP(BnxReadToken){};
 TEST(BnxReadToken, read_token_space)

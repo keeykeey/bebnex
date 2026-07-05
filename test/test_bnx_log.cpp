@@ -1,7 +1,9 @@
 #include <CppUTest/CommandLineTestRunner.h>
 #include <cstdio>
 #include <unistd.h>
-#include "core/bnx_log.h"
+extern "C" {
+    #include "core/bnx_log.h"
+}
 
 TEST_GROUP(BnxLog) {
     int saved_stdout = -1;
