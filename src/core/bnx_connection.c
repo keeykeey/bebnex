@@ -21,7 +21,7 @@ bnx_connection_t *bnx_create_connection(int fd)
         return NULL;
     }
 
-    c->recieved = -1;
+    c->recieved = 0;
     c->next = NULL;
     c->connection_pool = NULL; // TODO
     c->linked = false;
