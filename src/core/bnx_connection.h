@@ -4,10 +4,6 @@
 #include <sys/socket.h>
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define BNX_REQUEST_BUF 4096
 #define BNX_MAX_CONNECTIONS 1024         // TODO: set dynamically from configuration file.
 
@@ -28,8 +24,3 @@ void bnx_free_connection(bnx_connection_t **c);
 bnx_connection_t *bnx_prepend_connection(bnx_connection_t *chain, bnx_connection_t *new_conn);
 bnx_connection_t *bnx_get_connection(bnx_connection_t *chain, int fd);
 bnx_connection_t *bnx_drop_connection(bnx_connection_t **chain, bnx_connection_t *target);
-
-
-#ifdef __cplusplus
-}
-#endif

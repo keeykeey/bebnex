@@ -3,10 +3,6 @@
 #include <stdbool.h>
 #include "core/bebnex.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define BNX_PREFIX_MAX_LENGTH 512
 #define BNX_DEFAULT_PORT 80
 
@@ -96,8 +92,3 @@ bnx_return_t bnx_conf_valid_pair(bnx_conf_t *parent, bnx_conf_t *child, const bn
 
 bnx_return_t bnx_conf_read(bnx_conf_t *conf, FILE *fp);
 bnx_return_t bnx_conf_check_valid_file(FILE *fp);
-
-
-#ifdef __cplusplus
-}
-#endif

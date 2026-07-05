@@ -1,17 +1,13 @@
 #pragma once
 #include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define BNX_LOG_LEVEL_FATAL   1
 #define BNX_LOG_LEVEL_ERROR   2
 #define BNX_LOG_LEVEL_INFO    3
 #define BNX_LOG_LEVEL_DEBUG   4
 
 
-#define BNX_DEBUG_LOG_PREFIX       "[%s:%d:%s] " 
+#define BNX_DEBUG_LOG_PREFIX       "[%s:%d:%s] "
 #define BNX_DEBUG_LOG_ARGS         __FILE__, __LINE__, __func__
 
 
@@ -62,7 +58,3 @@ extern "C" {
 #else
 #define BNX_LOG_DEBUG(fmt, ...)
 #endif /** BNX_LOG_LEVEL >= BNX_LOG_LEVEL_DEBUG */
-
-#ifdef __cplusplus
-}
-#endif

@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define BNX_PTR_ALIGNMENT sizeof(uintptr_t)
 #define bnx_align_ptr(p, a) (unsigned char *)(((uintptr_t) (p) + ((uintptr_t) a - 1)) & ~((uintptr_t) a - 1))
 
@@ -26,7 +22,3 @@ bnx_return_t bnx_pool_destroy(bnx_pool_t *pool);
 bnx_return_t bnx_pool_reset(bnx_pool_t *pool);
 bnx_return_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size);
 bnx_return_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t size);
-
-#ifdef __cplusplus
-}
-#endif
