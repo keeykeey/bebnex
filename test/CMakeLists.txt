@@ -4,6 +4,7 @@ add_executable(unit_test
     test_bnx_conf_file.cpp
     test_bnx_pool.cpp
     test_bnx_connection.cpp
+    test_bnx_string.cpp
 )
 
 # Enable ASan to detect memory leak.

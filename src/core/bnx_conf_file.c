@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include "core/bebnex.h"
 #include "core/bnx_conf_file.h"
-#include "core/bnx_log.h"
 
 bnx_return_t bnx_read_token(FILE *fp, char *buf, size_t size)
 {
@@ -262,7 +261,6 @@ bnx_return_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                         current_block = current;
                     } else if (strncmp(token, BNX_CONF_BLOCK_END, strlen(token)) == 0) {
                         if (!current_block || !current_block->parent) {
-                            BNX_LOG_ERROR("failed to read configuration file");
                             return bnx_error(BNX_ERROR, "failed to read configuration file");
                         } else {
                             bnx_conf_t *tmp = current_block->parent;
@@ -272,13 +270,11 @@ bnx_return_t bnx_conf_read(bnx_conf_t *root_conf, FILE *fp)
                     }
                     break;
                 case BNX_CONF_NO_MATCH:
-                    BNX_LOG_ERROR("fail to read configuration file. couldn't parse unexpected syntax");
                     return bnx_error(BNX_ERROR, "failed to read configuration file");
             }
         } else if (error.code == BNX_DONE) { // reached EOF
             return bnx_success(error.code);
         } else { // error.code == BNX_ERROR
-            BNX_LOG_ERROR("read token failed while reading configuration file");
             return bnx_error(error.code, "read token failed while reading configuration file");
         }
     }
@@ -303,12 +299,10 @@ bnx_return_t bnx_conf_check_valid_file(FILE *fp)
     } while(ch != EOF);
 
     if (block_start_count != block_end_count) {
-        BNX_LOG_ERROR("Conf-file syntax error. Found %d '{' but found %d '}'", block_start_count, block_end_count);
         return bnx_error(BNX_ERROR, "Configuration file syntax error");
     }
 
     if (before != '\n') {
-        BNX_LOG_ERROR("Conf-file syntax error. conf-file is expected to end with \\n");
         return bnx_error(BNX_ERROR, "Configuration file is expected to end with \\n");
     }
 

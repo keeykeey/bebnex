@@ -1,60 +1,28 @@
 #pragma once
 #include <stdio.h>
+#include "core/bebnex.h"
+#include "core/bnx_string.h"
 
-#define BNX_LOG_LEVEL_FATAL   1
-#define BNX_LOG_LEVEL_ERROR   2
-#define BNX_LOG_LEVEL_INFO    3
-#define BNX_LOG_LEVEL_DEBUG   4
+typedef enum bnx_log_level_e {
+    BNX_LOG_LEVEL_CRIT   = 1,
+    BNX_LOG_LEVEL_ERROR  = 2,
+    BNX_LOG_LEVEL_INFO   = 3,
+    BNX_LOG_LEVEL_DEBUG  = 4,
+} bnx_log_level_t;
 
+typedef struct bnx_log_s bnx_log_t;
+typedef void (*bnx_log_writer_pt)(bnx_log_t *log, const char *buf, size_t size);
 
-#define BNX_DEBUG_LOG_PREFIX       "[%s:%d:%s] "
-#define BNX_DEBUG_LOG_ARGS         __FILE__, __LINE__, __func__
+struct bnx_log_s {
+    int                 log_level;
+    int                 fd;
+    bnx_string_t       *fpath;
+    bnx_log_writer_pt   writer;
+    bnx_log_t          *next;
+};
 
-
-#ifndef BNX_LOG_LEVEL
-#define BNX_LOG_LEVEL               BNX_LOG_LEVEL_INFO
-#endif
-
-
-#if BNX_LOG_LEVEL >= BNX_LOG_LEVEL_FATAL
-    #ifdef BNX_DEBUG
-    #define  BNX_LOG_FATAL(fmt, ...) fprintf(stderr, "[FATAL] "BNX_DEBUG_LOG_PREFIX fmt "\n", BNX_DEBUG_LOG_ARGS, ##__VA_ARGS__)
-    #else
-    #define  BNX_LOG_FATAL(fmt, ...) fprintf(stderr, "[FATAL] " fmt"\n", ##__VA_ARGS__)
-    #endif /** BNX_DEBUG */
-#else
-#define BNX_LOG_FATAL(fmt, ...)
-#endif /** BNX_LOG_LEVEL >= BNX_LOG_LEVEL_FATAL */
-
-
-#if BNX_LOG_LEVEL >= BNX_LOG_LEVEL_ERROR
-    #ifdef BNX_DEBUG
-    #define  BNX_LOG_ERROR(fmt, ...) fprintf(stderr, "[ERROR] "BNX_DEBUG_LOG_PREFIX fmt "\n", BNX_DEBUG_LOG_ARGS, ##__VA_ARGS__)
-    #else
-    #define  BNX_LOG_ERROR(fmt, ...) fprintf(stderr, "[ERROR] " fmt"\n", ##__VA_ARGS__)
-    #endif /** BNX_DEBUG */
-#else
-#define BNX_LOG_ERROR(fmt, ...)
-#endif /** BNX_LOG_LEVEL >= BNX_LOG_LEVEL_ERROR */
-
-
-#if BNX_LOG_LEVEL >= BNX_LOG_LEVEL_INFO
-    #ifdef BNX_DEBUG
-    #define  BNX_LOG_INFO(fmt, ...) fprintf(stdout, "[INFO] "BNX_DEBUG_LOG_PREFIX fmt "\n", BNX_DEBUG_LOG_ARGS, ##__VA_ARGS__)
-    #else
-    #define  BNX_LOG_INFO(fmt, ...) fprintf(stdout, "[INFO] " fmt"\n", ##__VA_ARGS__)
-    #endif /** BNX_DEBUG */
-#else
-#define BNX_LOG_INFO(fmt, ...)
-#endif /** BNX_LOG_LEVEL >= BNX_KOG_LEVEL_INFO */
-
-
-#if BNX_LOG_LEVEL >= BNX_LOG_LEVEL_DEBUG
-    #ifdef BNX_DEBUG
-    #define  BNX_LOG_DEBUG(fmt, ...) fprintf(stdout, "[DEBUG] " BNX_DEBUG_LOG_PREFIX fmt "\n", BNX_DEBUG_LOG_ARGS, ##__VA_ARGS__)
-    #else
-    #define BNX_LOG_DEBUG(fmt, ...) fprintf(stdout, "[DEBUG] "fmt"\n", ##__VA_ARGS__)
-    #endif /** BNX_DEBUG */
-#else
-#define BNX_LOG_DEBUG(fmt, ...)
-#endif /** BNX_LOG_LEVEL >= BNX_LOG_LEVEL_DEBUG */
+bnx_return_t bnx_init_log(bnx_log_t *log, bnx_log_level_t log_level, bnx_string_t *fpath, bnx_log_writer_pt writer);
+bnx_return_t bnx_open_log_file(bnx_log_t *log);
+bnx_return_t bnx_close_log_file(bnx_log_t *log);
+void bnx_log_writer(bnx_log_t *log, const char *msg, size_t size);
+bnx_return_t bnx_write_logs(bnx_log_t *head, bnx_log_level_t log_level, size_t buf_size, const char *fmt, ...);
