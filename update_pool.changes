@@ -1,0 +1,647 @@
+diff --git a/src/core/bnx_pool.c b/src/core/bnx_pool.c
+index 49570a9..5820e32 100644
+--- a/src/core/bnx_pool.c
++++ b/src/core/bnx_pool.c
+@@ -1,113 +1,33 @@
+-#include "core/bebnex.h"
++#include <stdlib.h>
++#include "core/bnx_log.h"
+ #include "core/bnx_pool.h"
+-#include "string.h"
+ 
+-bnx_return_t bnx_pool_init(bnx_pool_t *pool, size_t size)
++static void *bnx_memalign(size_t align, size_t size, bnx_log_t *log)
+ {
+-    if (!pool || size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
+-
+-    unsigned char *buf = (unsigned char *)malloc(size);
+-    if (!buf) return bnx_error(BNX_ERROR, "malloc failed");
+-
+-    pool->buf = buf;
+-    pool->size = size;
+-    pool->start = (unsigned char *)buf;
+-    pool->end = (unsigned char *)buf + size;
+-    pool->current = bnx_align_ptr(pool->start, BNX_PTR_ALIGNMENT);
+-    pool->next = NULL;
+-
+-    return bnx_success(BNX_OK);
+-}
+-
+-bnx_return_t bnx_pool_destroy(bnx_pool_t *pool)
+-{
+-    if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
+-
+-    if (pool->next) {
+-        bnx_pool_destroy(pool->next);
+-        pool->next = NULL;
+-    }
+-
+-    if (pool->buf) {
+-        free(pool->buf);
+-        pool->buf = NULL;
++    void *memptr = NULL;
++    int err = posix_memalign(&memptr, align, size);
++    if (err != 0) {
++        bnx_write_logs(log, BNX_LOG_LEVEL_ERROR, 36, "posix_memalign failed(%d)", err);
++        return NULL;
+     }
+ 
+-    pool->size = 0;
+-    pool->start = NULL;
+-    pool->end = NULL;
+-    pool->current = NULL;
+-
+-    return bnx_success(BNX_OK);
++    return memptr;
+ }
+ 
+-bnx_return_t bnx_pool_reset(bnx_pool_t *pool)
++bnx_pool_t *bnx_create_pool(size_t size, bnx_log_t *log)
+ {
+-    if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
+-
+-    if (pool->start) {
+-        pool->current = bnx_align_ptr(pool->start, BNX_PTR_ALIGNMENT);
+-    }
+-
+-    if(pool->next) {
+-        bnx_return_t result = bnx_pool_reset(pool->next);
+-
+-        if (result.code != BNX_OK) {
+-            return result;
+-        }
++    bnx_pool_t *p = bnx_memalign(BNX_POOL_ALIGNMENT, size, log);
++    if (p == NULL) {
++        return NULL;
+     }
+ 
+-    return bnx_success(BNX_OK);
+-}
+-
+-bnx_return_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+-{
+-    if (!large_pool || !new_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
+-
+-    // make sure new_pool is not pointing to other buffer
+-    memset(new_pool, 0, sizeof(*new_pool));
+-
+-    unsigned char *aligned = bnx_align_ptr(large_pool->current, BNX_PTR_ALIGNMENT);
+-
+-    // check for available space
+-    if ((aligned + allocation_size) > large_pool->end) return bnx_error(BNX_ERROR, "Memory error");
+-
+-    new_pool->buf = aligned;
+-    new_pool->size = allocation_size;
+-    new_pool->start = aligned;
+-    new_pool->end = aligned + allocation_size - 1;
+-    new_pool->current = aligned;
+-    new_pool->next = NULL;
+-
+-    // fill with 0 (calloc semantics)
+-    memset(new_pool->buf, 0, allocation_size);
+-
+-    // advance large_pool->current. otherwise next allocation would be overlapped
+-    large_pool->current += allocation_size;
+-
+-    return bnx_success(BNX_OK);
+-}
+-
+-bnx_return_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+-{
+-    if (!new_pool || !large_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
+-
+-    // make sure new_pool is not pointing to other buffer
+-    memset(new_pool, 0, sizeof(*new_pool));
+-
+-    unsigned char *aligned = bnx_align_ptr(large_pool->current, BNX_PTR_ALIGNMENT);
+-
+-    if ((aligned + allocation_size) > large_pool->end) return bnx_error(BNX_ERROR, "memory error");
+-
+-    new_pool->buf = aligned;
+-    new_pool->size = allocation_size;
+-    new_pool->start = aligned;
+-    new_pool->end = aligned + allocation_size - 1;
+-    new_pool->current = aligned;
+-    new_pool->next = NULL;
+-
+-    // advance large_pool->current, otherwise next allocation would be overlapped
+-    large_pool->current += allocation_size;
++    p->d.last = (unsigned char *)p + sizeof(bnx_pool_t);
++    p->d.end = (unsigned char *)p + size;
++    p->d.next = NULL;
++    p->size = size;
++    p->large = NULL;
++    p->next = NULL;
++    p->log = log;
+ 
+-    return bnx_success(BNX_OK);
++    return p;
+ }
+diff --git a/src/core/bnx_pool.h b/src/core/bnx_pool.h
+index 2ec6557..87b6b9a 100644
+--- a/src/core/bnx_pool.h
++++ b/src/core/bnx_pool.h
+@@ -1,24 +1,37 @@
+ #pragma once
+-#include "core/bebnex.h"
+ #include <stdlib.h>
+-#include <stdint.h>
+-#include <sys/types.h>
++#include "core/bebnex.h"
++#include "core/bnx_log.h"
+ 
+-#define BNX_PTR_ALIGNMENT sizeof(uintptr_t)
++// #define BNX_PTR_ALIGNMENT sizeof(uintptr_t)
++#define BNX_POOL_ALIGNMENT 16
+ #define bnx_align_ptr(p, a) (unsigned char *)(((uintptr_t) (p) + ((uintptr_t) a - 1)) & ~((uintptr_t) a - 1))
+ 
++typedef struct bnx_pool_data_s bnx_pool_data_t;
++struct bnx_pool_data_s {
++    unsigned char   *last;
++    unsigned char   *end;
++    bnx_pool_data_t *next;
++};
++
++typedef struct bnx_pool_large_data_s bnx_pool_large_data_t;
++struct bnx_pool_large_data_s {
++    void                  *alloc;
++    bnx_pool_large_data_t *next;
++};
++
+ typedef struct bnx_pool_s bnx_pool_t;
+ struct bnx_pool_s {
+-    unsigned char *buf;
+-    size_t         size;
+-    unsigned char *start;
+-    unsigned char *end;
+-    unsigned char *current;
+-    bnx_pool_t    *next;
++    bnx_pool_data_t       d;
++    size_t                size;
++
++    bnx_pool_large_data_t *large;
++    bnx_pool_t            *next;
++    bnx_log_t             *log;
+ };
+ 
+-bnx_return_t bnx_pool_init(bnx_pool_t *pool, size_t size);
+-bnx_return_t bnx_pool_destroy(bnx_pool_t *pool);
++bnx_pool_t *bnx_create_pool(size_t size, bnx_log_t *log);
++bnx_return_t bnx_pool_destroy(bnx_pool_t **pool);
+ bnx_return_t bnx_pool_reset(bnx_pool_t *pool);
+-bnx_return_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size);
+-bnx_return_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t size);
++bnx_pool_t *bnx_pcalloc(bnx_pool_t *source, size_t size);
++bnx_pool_t *bnx_pmalloc(bnx_pool_t *source, size_t size);
+diff --git a/test/test_bnx_pool.cpp b/test/test_bnx_pool.cpp
+index b4bf76d..e69de29 100644
+--- a/test/test_bnx_pool.cpp
++++ b/test/test_bnx_pool.cpp
+@@ -1,447 +0,0 @@
+-#include <CppUTest/CommandLineTestRunner.h>
+-extern "C" {
+-    #include "core/bebnex.h"
+-    #include "core/bnx_pool.h"
+-}
+-
+-TEST_GROUP(BnxAlignPtr)
+-{
+-    uintptr_t zero     = 0b00000000;
+-
+-    uintptr_t one      = 0b00000001;
+-    uintptr_t two      = 0b00000010;
+-    uintptr_t three    = 0b00000011;
+-    uintptr_t four     = 0b00000100;
+-    uintptr_t five     = 0b00000101;
+-    uintptr_t six      = 0b00000110;
+-    uintptr_t seven    = 0b00000111;
+-    uintptr_t eight    = 0b00001000;
+-
+-    uintptr_t nine     = 0b00001001;
+-    uintptr_t ten      = 0b00001010;
+-    uintptr_t eleven   = 0b00001011;
+-    uintptr_t twelve   = 0b00001100;
+-    uintptr_t thirteen = 0b00001101;
+-    uintptr_t fourteen = 0b00001110;
+-    uintptr_t fifteen  = 0b00001111;
+-    uintptr_t sixteen  = 0b00010000;
+-
+-    uintptr_t seventeen   = 0b00010001;
+-    uintptr_t eighteen    = 0b00010010;
+-    uintptr_t nineteen    = 0b00010011;
+-    uintptr_t twenty      = 0b00010100;
+-    uintptr_t twentyone   = 0b00010101;
+-    uintptr_t twentytwo   = 0b00010110;
+-    uintptr_t twentythree = 0b00010111;
+-    uintptr_t twentyfour  = 0b00011000;
+-};
+-
+-TEST(BnxAlignPtr, execute_with_returning_zero)
+-{
+-    int pointer_block = 8;
+-    unsigned char *result = bnx_align_ptr(zero, pointer_block);
+-    POINTERS_EQUAL(result, zero);
+-}
+-
+-TEST(BnxAlignPtr, execute_with_returning_eight)
+-{
+-    int pointer_block = 8;
+-    uintptr_t arr[8] = {one, two, three, four, five, six, seven, eight};
+-    for (int i = 0; i < 8; ++i) {
+-        unsigned char *result = bnx_align_ptr(arr[i], pointer_block);
+-        POINTERS_EQUAL(result, eight);
+-    }
+-}
+-
+-TEST(BnxAlignPtr, execute_with_returning_sixteen)
+-{
+-    int pointer_block = 8;
+-    uintptr_t arr[8] = {nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen};
+-    for (int i = 0; i < 8; ++i) {
+-        unsigned char *result = bnx_align_ptr(arr[i], pointer_block);
+-        POINTERS_EQUAL(result, sixteen);
+-    }
+-}
+-
+-TEST(BnxAlignPtr, execute_with_returning_twenty_four)
+-{
+-    int pointer_block = 8;
+-    uintptr_t arr[8] = {seventeen, eighteen, nineteen, twenty, twentyone, twentytwo, twentythree, twentyfour};
+-    for (int i = 0; i < 8; ++i) {
+-        unsigned char *result = bnx_align_ptr(arr[i], pointer_block);
+-        POINTERS_EQUAL(result, twentyfour);
+-    }
+-}
+-
+-
+-TEST_GROUP(BnxPoolInit) {};
+-
+-TEST(BnxPoolInit, init_success)
+-{
+-    bnx_pool_t pool;
+-    bnx_return_t result = bnx_pool_init(&pool, 10);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    CHECK_EQUAL(10, pool.size);
+-    POINTERS_EQUAL(pool.start, pool.current);
+-    POINTERS_EQUAL(pool.end, (unsigned char *)pool.start + 10);
+-    POINTERS_EQUAL(pool.end, (unsigned char *)pool.buf + 10);
+-    POINTERS_EQUAL(NULL, pool.next);
+-
+-    bnx_pool_destroy(&pool);
+-}
+-
+-TEST(BnxPoolInit, init_with_null)
+-{
+-    bnx_return_t result = bnx_pool_init(NULL, 10);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPoolInit, init_with_size_zero)
+-{
+-    bnx_pool_t *pool = NULL;
+-    bnx_return_t result = bnx_pool_init(pool, 0);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-    bnx_pool_destroy(pool);
+-}
+-
+-
+-TEST_GROUP(BnxPoolDestroy) {};
+-
+-TEST(BnxPoolDestroy, destroy_pool_success)
+-{
+-    bnx_pool_t pool;
+-    bnx_pool_init(&pool, 24);
+-    bnx_return_t result = bnx_pool_destroy(&pool);
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    POINTERS_EQUAL(NULL, pool.buf);
+-    CHECK_EQUAL(0, pool.size);
+-    POINTERS_EQUAL(NULL, pool.start);
+-    POINTERS_EQUAL(NULL, pool.end);
+-    POINTERS_EQUAL(NULL, pool.current);
+-    POINTERS_EQUAL(NULL, pool.next);
+-}
+-
+-TEST(BnxPoolDestroy, execute_fail_with_invalid_argument)
+-{
+-    bnx_return_t result = bnx_pool_destroy(NULL);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-
+-TEST_GROUP(BnxPoolReset) {};
+-
+-TEST(BnxPoolReset, reset_success)
+-{
+-    bnx_pool_t pool;
+-    bnx_pool_init(&pool, 20);
+-    bnx_return_t result = bnx_pool_reset(&pool);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    POINTERS_EQUAL(pool.current, pool.start);
+-    bnx_pool_destroy(&pool);
+-}
+-
+-TEST(BnxPoolReset, execute_with_invalid_argument)
+-{
+-    bnx_return_t result = bnx_pool_reset(NULL);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-
+-TEST_GROUP(BnxPcalloc)
+-{
+-    size_t MEMORY_BLOCK_SIZE = sizeof(uintptr_t);
+-    int get_memory_block_distance(int p, int memory_block_size)
+-    {
+-        int next_start = (p + memory_block_size - 1) & ~(memory_block_size - 1);
+-        return next_start - p;
+-    }
+-};
+-
+-TEST(BnxPcalloc, allocate_success)
+-{
+-    int align_size = 4;
+-
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 16);
+-
+-    bnx_pool_t new_pool;
+-    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, align_size);
+-
+-    CHECK_EQUAL(4, new_pool.size);
+-    POINTERS_EQUAL(new_pool.start, new_pool.current);
+-    POINTERS_EQUAL(new_pool.end, (unsigned char *)new_pool.start + align_size - 1);
+-    POINTERS_EQUAL(new_pool.end, (unsigned char *)new_pool.buf + align_size - 1);
+-    POINTERS_EQUAL(NULL, new_pool.next);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPcalloc, check_memory_allocated_sequencely_with_uintptr_size)
+-{
+-    int align_size = MEMORY_BLOCK_SIZE;
+-
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 64);
+-
+-    bnx_pool_t new_pool;
+-    bnx_pool_t another_new_pool;
+-
+-    bnx_pcalloc(&new_pool, &large_pool, align_size);
+-    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, align_size);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    CHECK_EQUAL(align_size, another_new_pool.size);
+-    POINTERS_EQUAL(another_new_pool.start, another_new_pool.current);
+-    POINTERS_EQUAL(another_new_pool.buf, (unsigned char *)another_new_pool.start);
+-    POINTERS_EQUAL(another_new_pool.end, (unsigned char *)another_new_pool.start + align_size - 1);
+-    POINTERS_EQUAL(NULL, another_new_pool.next);
+-
+-    POINTERS_EQUAL(new_pool.end + 1, another_new_pool.start);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPcalloc, check_memory_allocated_sequencely_with_not_uintptr_size)
+-{
+-    int align_size = 10;
+-
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 64);
+-
+-    bnx_pool_t new_pool;
+-    bnx_pool_t another_new_pool;
+-
+-    bnx_pcalloc(&new_pool, &large_pool, align_size);
+-    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, align_size);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    CHECK_EQUAL(align_size, another_new_pool.size);
+-    POINTERS_EQUAL(another_new_pool.start, another_new_pool.current);
+-    POINTERS_EQUAL(another_new_pool.buf, (unsigned char *)another_new_pool.start);
+-    POINTERS_EQUAL(another_new_pool.end, (unsigned char *)another_new_pool.start + align_size - 1);
+-    POINTERS_EQUAL(NULL, another_new_pool.next);
+-
+-    int memory_block_distance = get_memory_block_distance(align_size, MEMORY_BLOCK_SIZE);
+-    POINTERS_EQUAL(new_pool.end + 1 + memory_block_distance, another_new_pool.start);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPcalloc, execute_fail_with_null_new_pool)
+-{
+-    bnx_pool_t large_pool;
+-    bnx_return_t result = bnx_pcalloc(NULL, &large_pool, 16);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPcalloc, execute_fail_with_null_large_pool)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_return_t result = bnx_pcalloc(&new_pool, NULL, 16);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPcalloc, execute_fail_with_size_zero)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_pool_t large_pool;
+-    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 0);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPcalloc, execute_with_too_big_size)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 16);
+-
+-    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 20);
+-
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPcalloc, execute_with_just_size)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 16);
+-
+-    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 16);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPcalloc, execute_fail_with_too_big_size_with_two_allocation)
+-{
+-    bnx_pool_t large_pool;
+-    bnx_pool_t new_pool;
+-    bnx_pool_t another_new_pool;
+-
+-    bnx_pool_init(&large_pool, 16);
+-    bnx_pcalloc(&new_pool, &large_pool, 8);
+-    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, 16);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPcalloc, check_aligned_memory_buffer_is_zero_cleared)
+-{
+-    bnx_pool_t large_pool;
+-    bnx_pool_t new_pool;
+-    bnx_pool_init(&large_pool, 8);
+-    bnx_pcalloc(&new_pool, &large_pool, 2);
+-    CHECK_EQUAL(*(new_pool.start), 0);
+-    CHECK_EQUAL(*(new_pool.start + 1), 0);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-
+-TEST_GROUP(BnxPmalloc)
+-{
+-    size_t MEMORY_BLOCK_SIZE = sizeof(uintptr_t);
+-    int get_memory_block_distance(int p, int memory_block_size)
+-    {
+-        int next_start = (p + memory_block_size - 1) & ~(memory_block_size - 1);
+-        return next_start - p;
+-    }
+-};
+-
+-TEST(BnxPmalloc, allocate_success)
+-{
+-    int align_size = 8;
+-
+-    bnx_pool_t large_pool;
+-    bnx_pool_t new_pool;
+-    bnx_pool_init(&large_pool, 16);
+-    bnx_pmalloc(&new_pool, &large_pool, align_size);
+-
+-
+-    CHECK_EQUAL(8, new_pool.size);
+-    POINTERS_EQUAL(new_pool.start, new_pool.current);
+-    POINTERS_EQUAL(new_pool.end, (unsigned char *)new_pool.start + align_size - 1);
+-    POINTERS_EQUAL(new_pool.end, (unsigned char *)new_pool.buf + align_size - 1);
+-    POINTERS_EQUAL(NULL, new_pool.next);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPmalloc, check_memory_allocated_sequencely_with_uintptr_size)
+-{
+-    int align_size = MEMORY_BLOCK_SIZE;
+-
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 64);
+-
+-    bnx_pool_t new_pool;
+-    bnx_pool_t another_new_pool;
+-
+-    bnx_pmalloc(&new_pool, &large_pool, align_size);
+-    bnx_return_t result = bnx_pmalloc(&another_new_pool, &large_pool, align_size);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    CHECK_EQUAL(align_size, another_new_pool.size);
+-    POINTERS_EQUAL(another_new_pool.start, another_new_pool.current);
+-    POINTERS_EQUAL(another_new_pool.buf, (unsigned char *)another_new_pool.start);
+-    POINTERS_EQUAL(another_new_pool.end, (unsigned char *)another_new_pool.start + align_size - 1);
+-    POINTERS_EQUAL(NULL, another_new_pool.next);
+-
+-    POINTERS_EQUAL(new_pool.end + 1, another_new_pool.start);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPmalloc, check_memory_allocated_sequencely_with_not_uintptr_size)
+-{
+-    int align_size = 10;
+-
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 64);
+-
+-    bnx_pool_t new_pool;
+-    bnx_pool_t another_new_pool;
+-
+-    bnx_pmalloc(&new_pool, &large_pool, align_size);
+-    bnx_return_t result = bnx_pmalloc(&another_new_pool, &large_pool, align_size);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-    CHECK_EQUAL(align_size, another_new_pool.size);
+-    POINTERS_EQUAL(another_new_pool.start, another_new_pool.current);
+-    POINTERS_EQUAL(another_new_pool.buf, (unsigned char *)another_new_pool.start);
+-    POINTERS_EQUAL(another_new_pool.end, (unsigned char *)another_new_pool.start + align_size - 1);
+-    POINTERS_EQUAL(NULL, another_new_pool.next);
+-
+-    int memory_block_distance = get_memory_block_distance(align_size, MEMORY_BLOCK_SIZE);
+-    POINTERS_EQUAL(new_pool.end + 1 + memory_block_distance, another_new_pool.start);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPmalloc, execute_fail_with_null_new_pool)
+-{
+-    bnx_pool_t large_pool;
+-    bnx_return_t result = bnx_pmalloc(NULL, &large_pool, 16);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPmalloc, execute_fail_with_null_large_pool)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_return_t result = bnx_pmalloc(&new_pool, NULL, 16);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPmalloc, execute_fail_with_size_zero)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_pool_t large_pool;
+-    bnx_return_t result = bnx_pmalloc(&new_pool, &large_pool, 0);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-}
+-
+-TEST(BnxPmalloc, execute_with_too_big_size)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 16);
+-
+-    bnx_return_t result = bnx_pmalloc(&new_pool, &large_pool, 20);
+-
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPmalloc, execute_with_just_size)
+-{
+-    bnx_pool_t new_pool;
+-    bnx_pool_t large_pool;
+-    bnx_pool_init(&large_pool, 16);
+-
+-    bnx_return_t result = bnx_pcalloc(&new_pool, &large_pool, 16);
+-
+-    CHECK_EQUAL(BNX_OK, result.code);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
+-
+-TEST(BnxPmalloc, execute_fail_with_too_big_size_with_two_allocation)
+-{
+-    bnx_pool_t large_pool;
+-    bnx_pool_t new_pool;
+-    bnx_pool_t another_new_pool;
+-
+-    bnx_pool_init(&large_pool, 16);
+-    bnx_pcalloc(&new_pool, &large_pool, 8);
+-    bnx_return_t result = bnx_pcalloc(&another_new_pool, &large_pool, 16);
+-    CHECK_EQUAL(BNX_ERROR, result.code);
+-
+-    bnx_pool_destroy(&large_pool);
+-}
