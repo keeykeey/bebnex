@@ -2,112 +2,196 @@
 #include "core/bnx_pool.h"
 #include "string.h"
 
-bnx_return_t bnx_pool_init(bnx_pool_t *pool, size_t size)
+
+static void *bnx_memalign(size_t align, size_t size, bnx_log_t *log)
 {
-    if (!pool || size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
-
-    unsigned char *buf = (unsigned char *)malloc(size);
-    if (!buf) return bnx_error(BNX_ERROR, "malloc failed");
-
-    pool->buf = buf;
-    pool->size = size;
-    pool->start = (unsigned char *)buf;
-    pool->end = (unsigned char *)buf + size;
-    pool->current = bnx_align_ptr(pool->start, BNX_PTR_ALIGNMENT);
-    pool->next = NULL;
-
-    return bnx_success(BNX_OK);
+    void *memptr = NULL;
+    int err = posix_memalign(&memptr, align, size);
+    if (err != 0) {
+        bnx_write_logs(log, BNX_LOG_LEVEL_ERROR, 64, "posix_memalign failed(%d)", err);
+        return NULL;
+    }
+    return memptr;
 }
 
-bnx_return_t bnx_pool_destroy(bnx_pool_t *pool)
+
+bnx_pool_t *bnx_create_pool(size_t size, bnx_log_t *log)
+{
+    if (size < sizeof(bnx_pool_t)) {
+        bnx_write_logs(log, BNX_LOG_LEVEL_ERROR, 64, "too small size for bnx_create_pool");
+        return NULL;
+    }
+
+    bnx_pool_t *p = (bnx_pool_t *)bnx_memalign(BNX_POOL_ALIGNMENT, size, log);
+    if (!p) {
+        return NULL;
+    }
+
+    p->d.last = (unsigned char *)p + sizeof(bnx_pool_t);
+    p->d.end = (unsigned char *)p + size;
+    p->d.next = NULL;
+    p->dsize = size - sizeof(bnx_pool_t);
+    p->large = NULL;
+    p->current = &(p->d);
+    p->log = log;
+
+    return p;
+}
+
+
+bnx_return_t bnx_pool_destroy(bnx_pool_t **pool)
 {
     if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
 
-    if (pool->next) {
-        bnx_pool_destroy(pool->next);
-        pool->next = NULL;
+    for (bnx_pool_large_data_t *l = (*pool)->large; l; l = l->next) {
+       if (l->alloc) {
+           free(l->alloc);
+       }
     }
 
-    if (pool->buf) {
-        free(pool->buf);
-        pool->buf = NULL;
+    bnx_pool_data_t *chain = (*pool)->d.next;
+    if (chain) {
+        for (bnx_pool_data_t *runner = chain, *next; /** void */ ; runner = next) {
+            next = runner->next;
+            free(runner);
+
+            if (next == NULL) {
+                break;
+            }
+        }
     }
 
-    pool->size = 0;
-    pool->start = NULL;
-    pool->end = NULL;
-    pool->current = NULL;
+    free(*pool);
+    *pool = NULL;
 
     return bnx_success(BNX_OK);
 }
+
 
 bnx_return_t bnx_pool_reset(bnx_pool_t *pool)
 {
     if (!pool) return bnx_error(BNX_ERROR, "Invalid argument");
 
-    if (pool->start) {
-        pool->current = bnx_align_ptr(pool->start, BNX_PTR_ALIGNMENT);
-    }
-
-    if(pool->next) {
-        bnx_return_t result = bnx_pool_reset(pool->next);
-
-        if (result.code != BNX_OK) {
-            return result;
+    for (bnx_pool_large_data_t *l = pool->large; l; l = l->next) {
+        if (l->alloc) {
+            free(l->alloc);
         }
     }
 
-    return bnx_success(BNX_OK);
-}
+    for (bnx_pool_data_t *d = pool->d.next; d; d = d->next) {
+        d->last = (unsigned char *)d + sizeof(bnx_pool_data_t);;
+        d->failed = 0;
+    }
 
-bnx_return_t bnx_pcalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
-{
-    if (!large_pool || !new_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
-
-    // make sure new_pool is not pointing to other buffer
-    memset(new_pool, 0, sizeof(*new_pool));
-
-    unsigned char *aligned = bnx_align_ptr(large_pool->current, BNX_PTR_ALIGNMENT);
-
-    // check for available space
-    if ((aligned + allocation_size) > large_pool->end) return bnx_error(BNX_ERROR, "Memory error");
-
-    new_pool->buf = aligned;
-    new_pool->size = allocation_size;
-    new_pool->start = aligned;
-    new_pool->end = aligned + allocation_size - 1;
-    new_pool->current = aligned;
-    new_pool->next = NULL;
-
-    // fill with 0 (calloc semantics)
-    memset(new_pool->buf, 0, allocation_size);
-
-    // advance large_pool->current. otherwise next allocation would be overlapped
-    large_pool->current += allocation_size;
+    pool->d.last =  (unsigned char *)pool + sizeof(bnx_pool_t);
+    pool->large = NULL;
+    pool->current = &(pool->d);
 
     return bnx_success(BNX_OK);
 }
 
-bnx_return_t bnx_pmalloc(bnx_pool_t *new_pool, bnx_pool_t *large_pool, size_t allocation_size)
+
+static void *bnx_palloc_block(bnx_pool_t *pool, size_t want)
 {
-    if (!new_pool || !large_pool || allocation_size == 0) return bnx_error(BNX_ERROR, "Invalid argument");
+    size_t psize = (size_t) (pool->d.end - (unsigned char *)pool);
+    unsigned char *m = bnx_memalign(BNX_POOL_ALIGNMENT, psize, pool->log);
+    if (m == NULL) {
+        return NULL;
+    }
 
-    // make sure new_pool is not pointing to other buffer
-    memset(new_pool, 0, sizeof(*new_pool));
+    bnx_pool_data_t *new = (bnx_pool_data_t *)m;
+    new->end = m + psize;
+    new->next = NULL;
+    new->failed = 0;
 
-    unsigned char *aligned = bnx_align_ptr(large_pool->current, BNX_PTR_ALIGNMENT);
+    m = m + sizeof(bnx_pool_data_t);
+    m = bnx_align_ptr(m, BNX_ALIGNMENT);
+    new->last = m + want;
 
-    if ((aligned + allocation_size) > large_pool->end) return bnx_error(BNX_ERROR, "memory error");
+    bnx_pool_data_t *runner;
+    for (runner = pool->current; runner->next; runner = runner->next) {
+        if (runner->failed++ > 4) {
+            pool->current = runner->next;
+        }
+    }
+    runner->next = new;
 
-    new_pool->buf = aligned;
-    new_pool->size = allocation_size;
-    new_pool->start = aligned;
-    new_pool->end = aligned + allocation_size - 1;
-    new_pool->current = aligned;
-    new_pool->next = NULL;
+    return m;
+}
 
-    // advance large_pool->current, otherwise next allocation would be overlapped
-    large_pool->current += allocation_size;
 
-    return bnx_success(BNX_OK);
+static void *bnx_palloc_small(bnx_pool_t *source, size_t size, int align)
+{
+
+    for (bnx_pool_data_t *d = source->current; d; d = d->next) {
+        unsigned char *m;
+        if (align) {
+            m = bnx_align_ptr(d->last, BNX_ALIGNMENT);
+        } else {
+            m = d->last;
+        }
+
+        if ((d->end - m) >= size) {
+            d->last = m + size;
+            return m;
+        }
+    }
+
+    return bnx_palloc_block(source, size);
+}
+
+
+static void *bnx_palloc_large(bnx_pool_t *pool, size_t size)
+{
+    void *m = malloc(size);
+    if (m == NULL) {
+        return NULL;
+    }
+
+    int n = 0;
+    bnx_pool_large_data_t *large;
+    for (large = pool->large; large; large = large->next) {
+        if (large->alloc == NULL) {
+            large->alloc = m;
+            return m;
+        }
+
+        if (++n > 3) {
+            break;
+        }
+    }
+
+    large = bnx_palloc_small(pool, sizeof(bnx_pool_large_data_t), 1);
+    if (large == NULL) {
+        free(m);
+        return NULL;
+    }
+
+    // push new large in front of the pool->large
+    large->alloc = m;
+    large->next = pool->large;
+    pool->large = large;
+
+    return m;
+}
+
+
+void *bnx_pmalloc(bnx_pool_t *source, size_t size)
+{
+    if (size < source->dsize) {
+        return bnx_palloc_small(source, size, 1);
+    }
+
+    return bnx_palloc_large(source, size);
+}
+
+
+void *bnx_pcalloc(bnx_pool_t *source, size_t size)
+{
+    void *p = bnx_pmalloc(source, size);
+    if (p) {
+        memset(p, 0, size);
+    }
+
+    return p;
 }
